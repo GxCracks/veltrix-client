@@ -41,7 +41,7 @@
     .then(data => renderNews(data.items))
     .catch(() => {});
 
-  const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.1/VELTRIX-Setup-0.8.1.exe';
+  const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
   const windowsDownload = document.querySelector('[data-platform="windows"] .platform-action');
   if (windowsDownload) {
     windowsDownload.setAttribute('href', windowsInstallerUrl);
