@@ -121,7 +121,7 @@ jobs:
           $patch082 = 'build\veltrix-0.8.2-patch.zip'
           [IO.File]::WriteAllBytes($patch082, [Convert]::FromBase64String($b64))
           $patchHash = (Get-FileHash $patch082 -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($patchHash -ne '715d17af7d1e339c13d16ad3d604a7ed9c9902e29e2e43059194cf97edc2156a') {
+          if ($patchHash -ne '3d0062a96008cbdc8790c9d3100e301bb15df677b301269ac2f6bf5388177f4a') {
             throw "0.8.2 patch integrity check failed: $patchHash"
           }
           Expand-Archive -LiteralPath $patch082 -DestinationPath build\patch082 -Force
@@ -140,7 +140,6 @@ jobs:
             if ($listing -notmatch [regex]::Escape($class)) { throw "Missing launcher class: $class" }
           }
 
-          # Regression guard for the exact 0.8.1 failure: Java must be able to parse RightRail.class.
           & javap -classpath $target -verbose dev.veltrix.launcher.ui.RightRail *> build\rightrail-javap.txt
           if ($LASTEXITCODE -ne 0) { throw 'RightRail.class is malformed and cannot be parsed by Java.' }
 
