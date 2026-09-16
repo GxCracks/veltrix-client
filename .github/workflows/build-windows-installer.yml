@@ -8,6 +8,7 @@ on:
       - 'downloads/VELTRIX-Client-0.8.0-Windows.zip'
       - '.github/installer/veltrix-0.8.1.patch.b64.*'
       - '.github/installer/veltrix-0.8.2.patch.b64.*'
+      - '.github/installer/veltrix-0.8.2-rightrail-fix.b64.*'
       - 'assets/veltrix-logo.png'
       - '.github/workflows/build-windows-installer.yml'
 
@@ -71,6 +72,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path build\input | Out-Null
           New-Item -ItemType Directory -Force -Path build\patch081 | Out-Null
           New-Item -ItemType Directory -Force -Path build\patch082 | Out-Null
+          New-Item -ItemType Directory -Force -Path build\patch082RightRail | Out-Null
 
           Expand-Archive -LiteralPath downloads\VELTRIX-Client-0.8.0-Windows.zip -DestinationPath build\public -Force
           $base = 'build\public\VELTRIX-Client-0.8.0\VELTRIX-Launcher-0.8.0.jar'
@@ -127,6 +129,24 @@ jobs:
           Expand-Archive -LiteralPath $patch082 -DestinationPath build\patch082 -Force
           jar --update --file $target -C build\patch082 .
           if ($LASTEXITCODE -ne 0) { throw 'Failed to apply 0.8.2 hotfix patch.' }
+
+          # Apply the verified RightRail replacement last. The earlier 0.8.1/0.8.2
+          # patch contained a malformed RightRail.class that made the installed GUI
+          # process terminate immediately after launch.
+          $parts082RightRail = @(
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.00',
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.01',
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.02'
+          )
+          foreach ($part in $parts082RightRail) {
+            if (-not (Test-Path $part)) { throw "Missing RightRail startup fix part: $part" }
+          }
+          $b64 = ($parts082RightRail | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
+          $rightRailPatch = 'build\veltrix-0.8.2-rightrail-fix.zip'
+          [IO.File]::WriteAllBytes($rightRailPatch, [Convert]::FromBase64String($b64))
+          Expand-Archive -LiteralPath $rightRailPatch -DestinationPath build\patch082RightRail -Force
+          jar --update --file $target -C build\patch082RightRail .
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the verified RightRail startup fix.' }
 
           $listing = (& jar tf $target) -join "`n"
           $requiredClasses = @(
