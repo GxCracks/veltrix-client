@@ -7,9 +7,10 @@
   <meta name="theme-color" content="#02070c">
   <title>VELTRIX Client — One Client. Many Versions.</title>
   <link rel="icon" href="assets/favicon.png">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
+  <div class="page-noise" aria-hidden="true"></div>
   <header class="site-header" id="top">
     <div class="shell header-inner">
       <a class="brand" href="#top" aria-label="VELTRIX Home">
@@ -23,7 +24,7 @@
         <a href="#features">Features</a>
         <a href="#news">News</a>
         <a href="#download">Download</a>
-        <a href="support.html">Support</a>
+        <a class="support-link" href="https://discord.gg/9qYaVP6jvp" target="_blank" rel="noopener noreferrer">Support</a>
         <a href="privacy.html">Privacy</a>
       </nav>
 
@@ -38,9 +39,13 @@
   <main>
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-world" aria-hidden="true"></div>
+      <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="hero-beam hero-beam-a" aria-hidden="true"></div>
+      <div class="hero-beam hero-beam-b" aria-hidden="true"></div>
       <div class="shell hero-inner">
-        <div class="hero-copy">
+        <div class="hero-copy reveal">
+          <div class="release-chip"><span></span> VELTRIX 0.8.2 LIVE</div>
           <p class="eyebrow">Minecraft Java Edition</p>
           <h1 id="hero-title">ONE CLIENT.<br><span>MANY VERSIONS.</span></h1>
           <p class="hero-lead">Play any version. Add your mods. Make it yours.</p>
@@ -53,41 +58,51 @@
           </div>
           <p class="hero-tagline">SAME GAME. BIGGER POSSIBILITIES.</p>
         </div>
+
+        <aside class="hero-status reveal" aria-label="VELTRIX highlights">
+          <div class="status-top"><span class="live-dot"></span><strong>VELTRIX SYSTEM</strong><small>ONLINE</small></div>
+          <div class="status-metric"><span>Launcher</span><strong>0.8.2</strong></div>
+          <div class="status-metric"><span>Windows</span><strong class="good">AVAILABLE</strong></div>
+          <div class="status-metric"><span>macOS / Linux</span><strong>COMING SOON</strong></div>
+          <a class="discord-mini" href="https://discord.gg/9qYaVP6jvp" target="_blank" rel="noopener noreferrer">Discord Support <span>↗</span></a>
+        </aside>
+
         <div class="hero-side-copy"><span>EXPLORE</span><span>YOUR WORLD</span><strong>DIFFERENTLY.</strong></div>
       </div>
     </section>
 
     <section class="feature-band shell" id="features">
-      <article><span class="feature-icon">ϟ</span><div><h2>Performance</h2><p>Optimized for a smoother, faster Minecraft experience.</p></div></article>
-      <article><span class="feature-icon">✧</span><div><h2>Design</h2><p>A clean, modern interface built for players.</p></div></article>
-      <article><span class="feature-icon">◇</span><div><h2>Freedom</h2><p>Play your way. Add mods, customize, explore.</p></div></article>
-      <article><span class="feature-icon">▦</span><div><h2>Minecraft Version Support</h2><p>Play any version from classic to latest.</p></div></article>
-      <article><span class="feature-icon">◎</span><div><h2>Official Microsoft Login</h2><p>Official OAuth authentication flow.</p></div></article>
-      <article><span class="feature-icon">⌁</span><div><h2>Launcher-Core</h2><p>All in one client. Launch, mod, and play.</p></div></article>
+      <article class="reveal"><span class="feature-icon">ϟ</span><div><h2>Performance</h2><p>Optimized for a smoother, faster Minecraft experience.</p></div></article>
+      <article class="reveal"><span class="feature-icon">✧</span><div><h2>Design</h2><p>A clean, modern interface built for players.</p></div></article>
+      <article class="reveal"><span class="feature-icon">◇</span><div><h2>Freedom</h2><p>Play your way. Add mods, customize, explore.</p></div></article>
+      <article class="reveal"><span class="feature-icon">▦</span><div><h2>Minecraft Version Support</h2><p>Play any version from classic to latest.</p></div></article>
+      <article class="reveal"><span class="feature-icon">◎</span><div><h2>Official Microsoft Login</h2><p>Official OAuth authentication flow.</p></div></article>
+      <article class="reveal"><span class="feature-icon">⌁</span><div><h2>Launcher-Core</h2><p>All in one client. Launch, mod, and play.</p></div></article>
     </section>
 
     <section class="dashboard shell">
-      <div class="launcher-panel">
-        <div class="panel-title"><span>VELTRIX CLIENT</span><small>MORE THAN JUST A CLIENT.</small></div>
+      <div class="launcher-panel reveal">
+        <div class="panel-title"><span>VELTRIX CLIENT</span><small>MORE THAN JUST A CLIENT.</small><i></i></div>
         <div class="launcher-preview">
           <img src="assets/launcher-live.svg" alt="VELTRIX launcher preview">
           <div class="preview-glow"></div>
+          <div class="preview-badge">LIVE PREVIEW</div>
         </div>
-        <div class="store-strip">
+        <div class="store-strip" id="store">
           <div><small>FEATURED STORE</small><strong>Enhance your experience with premium cosmetics, ranks and more.</strong></div>
-          <a href="#download">VIEW ALL →</a>
+          <a href="#store">VIEW ALL →</a>
         </div>
         <div class="store-cards">
-          <article><span class="store-art cape">V</span><b>VELTRIX CAPE</b><small>ELITE EDITION</small><strong>$9.99</strong></article>
-          <article><span class="store-art wings">✦</span><b>ANGEL WINGS</b><small>PREMIUM COSMETIC</small><strong>$6.99</strong></article>
-          <article><span class="store-art shadow">✧</span><b>SHADOW WINGS</b><small>OBSIDIAN EDITION</small><strong>$6.99</strong></article>
-          <article><span class="store-art soul">⌁</span><b>SOUL TRAIL</b><small>PARTICLE EFFECT</small><strong>$3.99</strong></article>
-          <article><span class="store-art bundle">V+</span><b>VELTRIX BUNDLE</b><small>COMPLETE COLLECTION</small><strong>$19.99</strong></article>
+          <article tabindex="0"><span class="store-art cape">V</span><b>VELTRIX CAPE</b><small>ELITE EDITION</small><strong>$9.99</strong><em>PREVIEW</em></article>
+          <article tabindex="0"><span class="store-art wings">✦</span><b>ANGEL WINGS</b><small>PREMIUM COSMETIC</small><strong>$6.99</strong><em>PREVIEW</em></article>
+          <article tabindex="0"><span class="store-art shadow">✧</span><b>SHADOW WINGS</b><small>OBSIDIAN EDITION</small><strong>$6.99</strong><em>PREVIEW</em></article>
+          <article tabindex="0"><span class="store-art soul">⌁</span><b>SOUL TRAIL</b><small>PARTICLE EFFECT</small><strong>$3.99</strong><em>PREVIEW</em></article>
+          <article tabindex="0"><span class="store-art bundle">V+</span><b>VELTRIX BUNDLE</b><small>COMPLETE COLLECTION</small><strong>$19.99</strong><em>PREVIEW</em></article>
         </div>
       </div>
 
-      <div class="news-column" id="news">
-        <div class="section-bar"><h2>LATEST NEWS</h2><a href="#news">VIEW ALL NEWS →</a></div>
+      <div class="news-column reveal" id="news">
+        <div class="section-bar"><div><small>VELTRIX NETWORK</small><h2>LATEST NEWS</h2></div><a href="#news">VIEW ALL NEWS →</a></div>
         <div class="news-grid" id="news-grid">
           <article class="news-card skeleton">Loading news…</article>
         </div>
@@ -103,16 +118,22 @@
         </section>
       </div>
     </section>
+
+    <section class="community-strip shell reveal">
+      <div><span class="discord-mark">◉</span><div><small>NEED HELP?</small><h2>Join the VELTRIX Discord</h2><p>Get support, follow updates and stay connected with the community.</p></div></div>
+      <a href="https://discord.gg/9qYaVP6jvp" target="_blank" rel="noopener noreferrer">OPEN DISCORD <span>↗</span></a>
+    </section>
   </main>
 
   <footer class="footer">
     <div class="shell footer-inner">
       <div class="footer-brand"><img src="assets/veltrix-logo-web.webp" alt=""><span><strong>VELTRIX CLIENT</strong><small>MORE THAN JUST A CLIENT.</small></span></div>
-      <nav><a href="#features">Features</a><a href="#news">News</a><a href="#download">Download</a><a href="support.html">Support</a><a href="privacy.html">Privacy</a></nav>
+      <nav><a href="#features">Features</a><a href="#news">News</a><a href="#download">Download</a><a href="https://discord.gg/9qYaVP6jvp" target="_blank" rel="noopener noreferrer">Support</a><a href="privacy.html">Privacy</a></nav>
       <div class="footer-copy">SAME GAME.<br>BIGGER POSSIBILITIES.</div>
     </div>
   </footer>
 
-  <script src="script.js?v=10"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js?v=11"></script>
 </body>
 </html>
