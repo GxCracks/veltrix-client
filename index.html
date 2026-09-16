@@ -4,39 +4,115 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="VELTRIX Client — One Client. Many Versions. Windows available now. macOS and Linux coming soon.">
-  <meta name="theme-color" content="#03080d">
+  <meta name="theme-color" content="#02070c">
   <title>VELTRIX Client — One Client. Many Versions.</title>
   <link rel="icon" href="assets/favicon.png">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
-  <main class="veltrix-stage" id="top" aria-label="VELTRIX Client website">
-    <div class="design-frame">
-      <img class="design-image" src="assets/site-exact.svg" alt="VELTRIX Client website with Windows download and macOS and Linux Coming Soon">
-      <nav class="hotspots" aria-label="Main navigation">
-        <a class="hotspot nav-home" href="#top" aria-label="Home"></a>
-        <a class="hotspot nav-features" href="#features" aria-label="Features"></a>
-        <a class="hotspot nav-news" href="#news" aria-label="News"></a>
-        <a class="hotspot nav-download" href="#download" aria-label="Download"></a>
-        <a class="hotspot nav-support" href="https://github.com/GxCracks/veltrix-client" aria-label="Support"></a>
-        <a class="hotspot nav-privacy" href="privacy.html" aria-label="Privacy"></a>
-        <a class="hotspot header-windows" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe" aria-label="Download VELTRIX 0.8.2 for Windows"></a>
-        <span class="hotspot header-macos disabled" aria-label="macOS Coming Soon" aria-disabled="true"></span>
-        <span class="hotspot header-linux disabled" aria-label="Linux Coming Soon" aria-disabled="true"></span>
-        <a class="hotspot hero-windows" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe" aria-label="Download VELTRIX for Windows"></a>
-        <span class="hotspot hero-macos disabled" aria-label="macOS Coming Soon" aria-disabled="true"></span>
-        <span class="hotspot hero-linux disabled" aria-label="Linux Coming Soon" aria-disabled="true"></span>
-        <a class="hotspot latest-news" href="#news" aria-label="Latest news"></a>
-        <a class="hotspot bottom-windows" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe" aria-label="Download VELTRIX Client 0.8.2 for Windows"></a>
-        <span class="hotspot bottom-macos disabled" aria-label="macOS Coming Soon" aria-disabled="true"></span>
-        <span class="hotspot bottom-linux disabled" aria-label="Linux Coming Soon" aria-disabled="true"></span>
-        <a class="hotspot footer-privacy" href="privacy.html" aria-label="Privacy"></a>
+  <header class="site-header" id="top">
+    <div class="shell header-inner">
+      <a class="brand" href="#top" aria-label="VELTRIX Home">
+        <img src="assets/veltrix-logo-web.webp" alt="VELTRIX logo">
+        <span><strong>VELTRIX</strong><small>CLIENT</small></span>
+      </a>
+
+      <button class="nav-toggle" aria-controls="main-nav" aria-expanded="false">MENU</button>
+      <nav class="main-nav" id="main-nav">
+        <a class="active" href="#top">Home</a>
+        <a href="#features">Features</a>
+        <a href="#news">News</a>
+        <a href="#download">Download</a>
+        <a href="support.html">Support</a>
+        <a href="privacy.html">Privacy</a>
       </nav>
+
+      <div class="header-platforms">
+        <a class="mini-platform windows" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"><b>⊞</b><span>Download v0.8.2</span></a>
+        <span class="mini-platform soon"><b>●</b><span>macOS<small>Coming Soon</small></span></span>
+        <span class="mini-platform soon"><b>△</b><span>Linux<small>Coming Soon</small></span></span>
+      </div>
     </div>
-    <section class="sr-only" id="features"><h1>VELTRIX Client 0.8.2</h1><p>One Client. Many Versions.</p><p>Performance, Design, Freedom, Minecraft version support, official Microsoft login and launcher core.</p></section>
-    <section class="sr-only" id="news"><h2>Latest News</h2><p>VELTRIX 0.8.2 is available.</p></section>
-    <section class="sr-only" id="download"><h2>Download VELTRIX Client</h2><p>Windows 10/11 available now. macOS Coming Soon. Linux Coming Soon.</p><a href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">Download VELTRIX for Windows</a></section>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-world" aria-hidden="true"></div>
+      <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="shell hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">Minecraft Java Edition</p>
+          <h1 id="hero-title">ONE CLIENT.<br><span>MANY VERSIONS.</span></h1>
+          <p class="hero-lead">Play any version. Add your mods. Make it yours.</p>
+          <div class="hero-actions">
+            <a class="hero-download" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">
+              <b>⊞</b><span><strong>Download for Windows</strong><small>v0.8.2 &nbsp; | &nbsp; Free &nbsp; | &nbsp; Windows 10/11</small></span><i>→</i>
+            </a>
+            <span class="hero-os disabled"><b>●</b><span>macOS<small>Coming Soon</small></span></span>
+            <span class="hero-os disabled"><b>△</b><span>Linux<small>Coming Soon</small></span></span>
+          </div>
+          <p class="hero-tagline">SAME GAME. BIGGER POSSIBILITIES.</p>
+        </div>
+        <div class="hero-side-copy"><span>EXPLORE</span><span>YOUR WORLD</span><strong>DIFFERENTLY.</strong></div>
+      </div>
+    </section>
+
+    <section class="feature-band shell" id="features">
+      <article><span class="feature-icon">ϟ</span><div><h2>Performance</h2><p>Optimized for a smoother, faster Minecraft experience.</p></div></article>
+      <article><span class="feature-icon">✧</span><div><h2>Design</h2><p>A clean, modern interface built for players.</p></div></article>
+      <article><span class="feature-icon">◇</span><div><h2>Freedom</h2><p>Play your way. Add mods, customize, explore.</p></div></article>
+      <article><span class="feature-icon">▦</span><div><h2>Minecraft Version Support</h2><p>Play any version from classic to latest.</p></div></article>
+      <article><span class="feature-icon">◎</span><div><h2>Official Microsoft Login</h2><p>Official OAuth authentication flow.</p></div></article>
+      <article><span class="feature-icon">⌁</span><div><h2>Launcher-Core</h2><p>All in one client. Launch, mod, and play.</p></div></article>
+    </section>
+
+    <section class="dashboard shell">
+      <div class="launcher-panel">
+        <div class="panel-title"><span>VELTRIX CLIENT</span><small>MORE THAN JUST A CLIENT.</small></div>
+        <div class="launcher-preview">
+          <img src="assets/launcher-live.svg" alt="VELTRIX launcher preview">
+          <div class="preview-glow"></div>
+        </div>
+        <div class="store-strip">
+          <div><small>FEATURED STORE</small><strong>Enhance your experience with premium cosmetics, ranks and more.</strong></div>
+          <a href="#download">VIEW ALL →</a>
+        </div>
+        <div class="store-cards">
+          <article><span class="store-art cape">V</span><b>VELTRIX CAPE</b><small>ELITE EDITION</small><strong>$9.99</strong></article>
+          <article><span class="store-art wings">✦</span><b>ANGEL WINGS</b><small>PREMIUM COSMETIC</small><strong>$6.99</strong></article>
+          <article><span class="store-art shadow">✧</span><b>SHADOW WINGS</b><small>OBSIDIAN EDITION</small><strong>$6.99</strong></article>
+          <article><span class="store-art soul">⌁</span><b>SOUL TRAIL</b><small>PARTICLE EFFECT</small><strong>$3.99</strong></article>
+          <article><span class="store-art bundle">V+</span><b>VELTRIX BUNDLE</b><small>COMPLETE COLLECTION</small><strong>$19.99</strong></article>
+        </div>
+      </div>
+
+      <div class="news-column" id="news">
+        <div class="section-bar"><h2>LATEST NEWS</h2><a href="#news">VIEW ALL NEWS →</a></div>
+        <div class="news-grid" id="news-grid">
+          <article class="news-card skeleton">Loading news…</article>
+        </div>
+
+        <section class="download-card" id="download" data-platform="windows">
+          <div class="download-main">
+            <span class="windows-symbol">⊞</span>
+            <div><h2>DOWNLOAD VELTRIX CLIENT</h2><p>Version 0.8.2 &nbsp; | &nbsp; Windows 10/11 &nbsp; | &nbsp; Free</p><small>Get the latest version of the VELTRIX Client and start your journey today.</small></div>
+          </div>
+          <a class="platform-action" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"><b>⊞</b> Download for Windows <span>↓</span></a>
+          <div class="platform-coming"><span><b>●</b> macOS <small>Coming Soon</small></span><span><b>△</b> Linux <small>Coming Soon</small></span></div>
+          <div class="download-checks"><span>✓ Safe &amp; Secure</span><span>✓ Regular Updates</span><span>✓ Microsoft Login</span><span>✓ Supports All Versions</span></div>
+        </section>
+      </div>
+    </section>
   </main>
-  <script src="script.js?v=9"></script>
+
+  <footer class="footer">
+    <div class="shell footer-inner">
+      <div class="footer-brand"><img src="assets/veltrix-logo-web.webp" alt=""><span><strong>VELTRIX CLIENT</strong><small>MORE THAN JUST A CLIENT.</small></span></div>
+      <nav><a href="#features">Features</a><a href="#news">News</a><a href="#download">Download</a><a href="support.html">Support</a><a href="privacy.html">Privacy</a></nav>
+      <div class="footer-copy">SAME GAME.<br>BIGGER POSSIBILITIES.</div>
+    </div>
+  </footer>
+
+  <script src="script.js?v=10"></script>
 </body>
 </html>
