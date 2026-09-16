@@ -4,9 +4,9 @@
     {
       "date": "2026-09-16",
       "tag": "RELEASE",
-      "title": "VELTRIX 0.8.1 is available",
-      "summary": "VELTRIX 0.8.1 fixes the Microsoft TLS handshake in the bundled runtime and wires the authenticated Minecraft start flow.",
-      "version": "0.8.1",
+      "title": "VELTRIX 0.8.2 is available",
+      "summary": "VELTRIX 0.8.2 fixes the Windows no-window startup crash, keeps the Microsoft TLS runtime fix, and adds startup diagnostics and recovery for malformed launcher settings.",
+      "version": "0.8.2",
       "featured": true
     },
     {
