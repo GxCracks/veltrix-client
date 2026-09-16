@@ -3,6 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="https://gxcracks.github.io/veltrix-client/"
 INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
+SUPPORT="https://discord.gg/9qYaVP6jvp"
 
 if [[ -e "$ROOT/CNAME" ]]; then
   echo "CNAME must be absent when using the GitHub Pages project URL"
@@ -21,6 +22,13 @@ if grep -Eq 'releases/download/v0\.8\.[01]/VELTRIX-Setup-0\.8\.[01]\.exe' "$ROOT
   exit 1
 fi
 
+# Support must go directly to the official VELTRIX Discord, never back to GitHub or an internal placeholder page.
+grep -q "$SUPPORT" "$ROOT/index.html"
+if grep -q 'href="support.html"' "$ROOT/index.html"; then
+  echo "Support still points to support.html instead of Discord"
+  exit 1
+fi
+
 if grep -R -q 'https://veltrixclient.de' "$ROOT/README.md" "$ROOT/robots.txt" "$ROOT/sitemap.xml" "$ROOT/news.json"; then
   echo "Old custom-domain URL remains in public configuration"
   exit 1
@@ -33,6 +41,7 @@ grep -q '<link rel="canonical" href="https://gxcracks.github.io/veltrix-client/"
 grep -q 'https://gxcracks.github.io/veltrix-client/privacy.html' "$ROOT/_site/privacy.html"
 grep -q "$INSTALLER" "$ROOT/_site/index.html"
 grep -q "$INSTALLER" "$ROOT/_site/script.js"
+grep -q "$SUPPORT" "$ROOT/_site/index.html"
 grep -q 'VELTRIX Client 0.8.2' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
 
