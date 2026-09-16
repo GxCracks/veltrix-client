@@ -14,9 +14,12 @@ grep -q "$INSTALLER" "$ROOT/README.md"
 grep -q 'Sitemap: https://gxcracks.github.io/veltrix-client/sitemap.xml' "$ROOT/robots.txt"
 grep -q '<loc>https://gxcracks.github.io/veltrix-client/</loc>' "$ROOT/sitemap.xml"
 grep -q 'VELTRIX 0.8.2 is available' "$ROOT/news.json"
-# The source JS still carries the stable 0.8.0 placeholder; build-site.py rewrites
-# it to the current tested release before deployment.
-grep -q 'releases/download/v0.8.0/VELTRIX-Setup-0.8.0.exe' "$ROOT/script.js"
+# Keep the runtime JavaScript on the same tested installer as the production build.
+grep -q "$INSTALLER" "$ROOT/script.js"
+if grep -Eq 'releases/download/v0\.8\.[01]/VELTRIX-Setup-0\.8\.[01]\.exe' "$ROOT/script.js"; then
+  echo "Stale VELTRIX 0.8.0/0.8.1 installer link remains in script.js"
+  exit 1
+fi
 
 if grep -R -q 'https://veltrixclient.de' "$ROOT/README.md" "$ROOT/robots.txt" "$ROOT/sitemap.xml" "$ROOT/news.json"; then
   echo "Old custom-domain URL remains in public configuration"
