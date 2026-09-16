@@ -1,0 +1,29 @@
+{
+  "updated": "2026-09-16",
+  "items": [
+    {
+      "date": "2026-09-16",
+      "tag": "RELEASE",
+      "title": "VELTRIX 0.8.0 is available",
+      "summary": "The latest development build adds the new Minecraft launch pipeline, Fabric preparation, game logs and improved launch diagnostics.",
+      "version": "0.8.0",
+      "featured": true
+    },
+    {
+      "date": "2026-09-16",
+      "tag": "WEBSITE",
+      "title": "Official VELTRIX project page launched",
+      "summary": "The public project page now contains launcher information, authentication details, project status, news and the current download.",
+      "version": "",
+      "featured": false
+    },
+    {
+      "date": "2026-09-16",
+      "tag": "AUTH",
+      "title": "Minecraft Services approval in progress",
+      "summary": "Microsoft OAuth and Xbox/XSTS authentication are integrated. The VELTRIX application is being submitted for Minecraft Services approval.",
+      "version": "",
+      "featured": false
+    }
+  ]
+}
