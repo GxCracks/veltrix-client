@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1672 941">
+  <defs>
+    <linearGradient id="panel" x2="0" y2="1"><stop stop-color="#0b151e"/><stop offset="1" stop-color="#050b10"/></linearGradient>
+    <linearGradient id="cyanBtn" x2="0" y2="1"><stop stop-color="#162b35"/><stop offset="1" stop-color="#07131a"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .ui{font-family:Inter,Segoe UI,Arial,sans-serif;fill:#f3f7fb}.muted{fill:#a6b5c1}.cyan{fill:#27dfff}.tiny{font-size:10px;letter-spacing:3px}.small{font-size:12px}.body{font-size:14px}.label{font-size:12px;font-weight:700;letter-spacing:2px}.title{font-size:53px;font-weight:800;letter-spacing:-2px}.section{font-size:17px;font-weight:700;letter-spacing:5px}.cardtitle{font-size:13px;font-weight:700;letter-spacing:2px}.price{font-size:16px;font-weight:700}.stroke{stroke:#344854;stroke-width:1}.cyanStroke{stroke:#27dfff;stroke-width:1.5}
+    </style>
+  </defs>
+  <rect width="1672" height="941" fill="#02070c"/>
+  <image href="world-live.svg" x="0" y="53" width="1672" height="323" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="0" y="53" width="1672" height="323" fill="#02070c" opacity=".23"/>
+  <rect x="0" y="0" width="1672" height="54" fill="#03080d" opacity=".96"/>
+  <line x1="0" y1="54" x2="1672" y2="54" stroke="#2b3942" opacity=".7"/>
+  <image href="veltrix-logo-web.webp" x="185" y="10" width="52" height="38"/>
+  <text class="ui" x="248" y="31" font-size="25" font-weight="800" letter-spacing="6">VELTRIX</text>
+  <text class="ui muted tiny" x="286" y="44">CLIENT</text>
+  <text class="ui cyan tiny" x="511" y="30">HOME</text><line x1="510" y1="43" x2="552" y2="43" stroke="#27dfff"/>
+  <text class="ui muted tiny" x="584" y="30">FEATURES</text>
+  <text class="ui muted tiny" x="682" y="30">NEWS</text>
+  <text class="ui muted tiny" x="748" y="30">DOWNLOAD</text>
+  <text class="ui muted tiny" x="850" y="30">SUPPORT</text>
+  <text class="ui muted tiny" x="938" y="30">PRIVACY</text>
+  <g transform="translate(1050 10)"><rect width="170" height="34" rx="5" fill="#0b161d" class="cyanStroke" filter="url(#glow)"/><text class="ui" x="19" y="22" font-size="13">⊞  Download v0.8.2</text></g>
+  <g transform="translate(1230 10)"><rect width="108" height="34" rx="5" fill="#071017" class="stroke"/><text class="ui small" x="16" y="15">● macOS</text><text class="ui muted" x="16" y="28" font-size="10">Coming Soon</text></g>
+  <g transform="translate(1346 10)"><rect width="110" height="34" rx="5" fill="#071017" class="stroke"/><text class="ui small" x="15" y="15">♙ Linux</text><text class="ui muted" x="15" y="28" font-size="10">Coming Soon</text></g>
+  <text class="ui muted tiny" x="1490" y="17">PLAY</text><text class="ui muted tiny" x="1490" y="30">EXPLORE</text><text class="ui muted tiny" x="1490" y="43">BELONG</text>
+  <text class="ui muted tiny" x="165" y="106">MINECRAFT JAVA EDITION</text>
+  <text class="ui title" x="166" y="158">ONE CLIENT.</text>
+  <text class="ui title" x="166" y="205">MANY VERSIONS.</text>
+  <text class="ui" x="166" y="233" font-size="18">Play any version. Add your mods. Make it yours.</text>
+  <g transform="translate(166 259)"><rect width="298" height="55" rx="4" fill="url(#cyanBtn)" stroke="#32e5ff" stroke-width="2" filter="url(#glow)"/><text class="ui" x="27" y="27" font-size="17">⊞</text><text class="ui" x="72" y="24" font-size="15" font-weight="700">Download for Windows</text><text class="ui muted" x="72" y="40" font-size="10">v0.8.2  |  Free  |  Windows 10/11</text><text class="ui" x="270" y="33" font-size="20">→</text></g>
+  <g transform="translate(482 261)"><rect width="158" height="52" rx="4" fill="#091118" stroke="#59646c"/><text class="ui" x="18" y="23" font-size="13">●  macOS</text><text class="ui muted" x="47" y="39" font-size="10">Coming Soon</text><text class="ui" x="135" y="31">→</text></g>
+  <g transform="translate(654 261)"><rect width="154" height="52" rx="4" fill="#091118" stroke="#59646c"/><text class="ui" x="18" y="23" font-size="13">♙  Linux</text><text class="ui muted" x="47" y="39" font-size="10">Coming Soon</text><text class="ui" x="132" y="31">→</text></g>
+  <text class="ui muted tiny" x="166" y="338">SAME GAME. BIGGER POSSIBILITIES.</text>
+  <text class="ui muted tiny" x="1505" y="204">EXPLORE</text><text class="ui muted tiny" x="1505" y="224">YOUR WORLD</text><text class="ui cyan tiny" x="1505" y="245">DIFFERENTLY.</text>
+  <g transform="translate(70 373)">
+    <g><rect width="256" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="27" y="55" font-size="35">ϟ</text><text class="ui label" x="95" y="31">PERFORMANCE</text><text class="ui muted" x="95" y="53" font-size="11">Optimized for a smoother,</text><text class="ui muted" x="95" y="69" font-size="11">faster Minecraft experience.</text></g>
+    <g transform="translate(268 0)"><rect width="238" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="30" y="55" font-size="31">✎</text><text class="ui label" x="93" y="31">DESIGN</text><text class="ui muted" x="93" y="53" font-size="11">A clean, modern interface</text><text class="ui muted" x="93" y="69" font-size="11">built for players.</text></g>
+    <g transform="translate(518 0)"><rect width="238" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="30" y="56" font-size="32">◇</text><text class="ui label" x="92" y="31">FREEDOM</text><text class="ui muted" x="92" y="53" font-size="11">Play your way. Add mods,</text><text class="ui muted" x="92" y="69" font-size="11">customize, explore.</text></g>
+    <g transform="translate(768 0)"><rect width="238" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="28" y="55" font-size="31">▦</text><text class="ui label" x="92" y="27">MINECRAFT</text><text class="ui label" x="92" y="41">VERSION SUPPORT</text><text class="ui muted" x="92" y="61" font-size="11">Play any version from</text><text class="ui muted" x="92" y="76" font-size="11">classic to latest.</text></g>
+    <g transform="translate(1018 0)"><rect width="238" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="29" y="56" font-size="31">◎</text><text class="ui label" x="92" y="27">OFFICIAL</text><text class="ui label" x="92" y="41">MICROSOFT LOGIN</text><text class="ui muted" x="92" y="62" font-size="11">Secure and easy</text><text class="ui muted" x="92" y="77" font-size="11">authentication.</text></g>
+    <g transform="translate(1268 0)"><rect width="242" height="87" rx="7" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="28" y="55" font-size="31">⌘</text><text class="ui label" x="94" y="31">LAUNCHER-CORE</text><text class="ui muted" x="94" y="53" font-size="11">All in one client.</text><text class="ui muted" x="94" y="69" font-size="11">Launch, mod, and play.</text></g>
+  </g>
+  <rect x="70" y="474" width="734" height="383" rx="8" fill="#060b0f" class="cyanStroke" opacity=".9"/>
+  <image href="launcher-live.svg" x="70" y="474" width="734" height="383" preserveAspectRatio="xMidYMid meet"/>
+  <text class="ui section" x="830" y="492">LATEST NEWS</text><text class="ui muted tiny" x="1468" y="492">VIEW ALL NEWS →</text>
+  <g transform="translate(830 504)">
+    <g><rect width="239" height="204" rx="7" fill="url(#panel)" class="stroke"/><rect width="239" height="76" rx="7" fill="#17262c"/><text class="ui" x="16" y="98" font-size="9" letter-spacing="1">UPDATE</text><text class="ui muted" x="160" y="98" font-size="9">APR 12, 2025</text><text class="ui cardtitle" x="16" y="121">VELTRIX 0.8.2 RELEASED</text><text class="ui muted" x="16" y="143" font-size="11">Improved performance, new</text><text class="ui muted" x="16" y="159" font-size="11">mod management tools, and</text><text class="ui muted" x="16" y="175" font-size="11">multiple quality of life enhancements.</text><text class="ui cyan" x="16" y="195" font-size="11">Read more →</text></g>
+    <g transform="translate(253 0)"><rect width="239" height="204" rx="7" fill="url(#panel)" class="stroke"/><rect width="239" height="76" rx="7" fill="#19252d"/><text class="ui" x="16" y="98" font-size="9" letter-spacing="1">ANNOUNCEMENT</text><text class="ui muted" x="170" y="98" font-size="9">APR 5, 2025</text><text class="ui cardtitle" x="16" y="121">A BIGGER TOMORROW</text><text class="ui muted" x="16" y="143" font-size="11">We're building more than a client.</text><text class="ui muted" x="16" y="159" font-size="11">Thank you for being part of</text><text class="ui muted" x="16" y="175" font-size="11">our journey.</text><text class="ui cyan" x="16" y="195" font-size="11">Read more →</text></g>
+    <g transform="translate(506 0)"><rect width="239" height="204" rx="7" fill="url(#panel)" class="stroke"/><rect width="239" height="76" rx="7" fill="#17262c"/><text class="ui" x="16" y="98" font-size="9" letter-spacing="1">COMMUNITY</text><text class="ui muted" x="168" y="98" font-size="9">MAR 28, 2025</text><text class="ui cardtitle" x="16" y="121">SHOW US YOUR WORLD</text><text class="ui muted" x="16" y="143" font-size="11">Incredible builds, screenshots</text><text class="ui muted" x="16" y="159" font-size="11">and stories from the VELTRIX</text><text class="ui muted" x="16" y="175" font-size="11">community.</text><text class="ui cyan" x="16" y="195" font-size="11">Read more →</text></g>
+  </g>
+  <g transform="translate(830 722)"><rect width="745" height="135" rx="8" fill="url(#panel)" class="stroke"/><text class="ui cyan" x="27" y="54" font-size="42">⊞</text><text class="ui section" x="95" y="38">DOWNLOAD VELTRIX CLIENT</text><text class="ui muted" x="95" y="61" font-size="12">Version 0.8.2  |  Windows 10/11  |  Free</text><text class="ui muted" x="95" y="84" font-size="11">Get the latest version of the VELTRIX Client and start your journey today.</text><text class="ui" x="26" y="114" font-size="10">✓ Safe &amp; Secure     ✓ Regular Updates     ✓ Microsoft Login     ✓ Supports All Versions</text>
+    <g transform="translate(478 25)"><rect width="238" height="46" rx="5" fill="#0b161d" class="cyanStroke" filter="url(#glow)"/><text class="ui" x="28" y="29" font-size="14">⊞  Download for Windows</text></g>
+    <g transform="translate(478 80)"><rect width="116" height="42" rx="5" fill="#071017" class="stroke"/><text class="ui" x="12" y="18" font-size="11">● macOS</text><text class="ui muted" x="12" y="32" font-size="9">Coming Soon</text></g>
+    <g transform="translate(602 80)"><rect width="114" height="42" rx="5" fill="#071017" class="stroke"/><text class="ui" x="12" y="18" font-size="11">♙ Linux</text><text class="ui muted" x="12" y="32" font-size="9">Coming Soon</text></g>
+  </g>
+  <line x1="0" y1="875" x2="1672" y2="875" stroke="#273741"/>
+  <image href="veltrix-logo-web.webp" x="70" y="885" width="48" height="36"/><text class="ui" x="120" y="904" font-size="15" font-weight="700" letter-spacing="4">VELTRIX</text><text class="ui cyan tiny" x="220" y="904">MORE THAN JUST A CLIENT.</text>
+  <text class="ui muted tiny" x="645" y="904">FEATURES</text><text class="ui muted tiny" x="727" y="904">NEWS</text><text class="ui muted tiny" x="785" y="904">DOWNLOAD</text><text class="ui muted tiny" x="876" y="904">SUPPORT</text><text class="ui muted tiny" x="951" y="904">PRIVACY</text>
+  <text class="ui muted tiny" x="1428" y="900">SAME GAME.</text><text class="ui muted tiny" x="1428" y="914">BIGGER POSSIBILITIES.</text>
+</svg>
