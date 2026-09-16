@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>VELTRIX — Redirecting</title>
+  <script>
+    (() => {
+      const path = (window.location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
+      const routes = {
+        '/download': '/#download',
+        '/features': '/#why-veltrix',
+        '/news': '/#news',
+        '/privacy': '/privacy.html'
+      };
+      window.location.replace(routes[path] || '/');
+    })();
+  </script>
+</head>
+<body></body>
+</html>

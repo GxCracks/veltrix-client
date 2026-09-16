@@ -1,0 +1,149 @@
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'downloads/VELTRIX-Client-0.8.0-Windows.zip'
+      - 'assets/veltrix-logo.png'
+      - '.github/workflows/build-windows-installer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout website repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Ensure Windows packaging tools are available
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Get-Command candle.exe -ErrorAction SilentlyContinue)) {
+            choco install wixtoolset --no-progress -y
+          }
+          $candle = Get-Command candle.exe -ErrorAction SilentlyContinue
+          if (-not $candle) {
+            $candle = Get-ChildItem 'C:\Program Files (x86)' -Filter candle.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $candle) { throw 'WiX candle.exe was not found after installation.' }
+          $wixBin = if ($candle.Source) { Split-Path -Parent $candle.Source } else { $candle.DirectoryName }
+          Add-Content -Path $env:GITHUB_PATH -Value $wixBin
+          Write-Host "WiX bin: $wixBin"
+
+          if (-not (Get-Command magick.exe -ErrorAction SilentlyContinue)) {
+            choco install imagemagick.app --no-progress -y
+          }
+          $magick = Get-Command magick.exe -ErrorAction SilentlyContinue
+          if (-not $magick) {
+            $magick = Get-ChildItem 'C:\Program Files' -Filter magick.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $magick) { throw 'ImageMagick magick.exe was not found after installation.' }
+          $magickBin = if ($magick.Source) { Split-Path -Parent $magick.Source } else { $magick.DirectoryName }
+          Add-Content -Path $env:GITHUB_PATH -Value $magickBin
+          Write-Host "ImageMagick bin: $magickBin"
+
+      - name: Build VELTRIX Windows icon
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path build | Out-Null
+          magick assets\veltrix-logo.png -background none -define icon:auto-resize=256,128,64,48,32,16 build\veltrix-installer.ico
+          if (-not (Test-Path build\veltrix-installer.ico)) { throw 'VELTRIX installer icon was not generated.' }
+
+      - name: Prepare clean launcher input
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path build\public | Out-Null
+          New-Item -ItemType Directory -Force -Path build\input | Out-Null
+          Expand-Archive -LiteralPath downloads\VELTRIX-Client-0.8.0-Windows.zip -DestinationPath build\public -Force
+          $jar = 'build\public\VELTRIX-Client-0.8.0\VELTRIX-Launcher-0.8.0.jar'
+          if (-not (Test-Path $jar)) { throw "Public launcher JAR is missing: $jar" }
+          Copy-Item -LiteralPath $jar -Destination build\input\VELTRIX-Launcher-0.8.0.jar -Force
+
+      - name: Verify Java runtime modules
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $modules = (& jdeps --multi-release 21 --ignore-missing-deps --print-module-deps build\input\VELTRIX-Launcher-0.8.0.jar).Trim()
+          Write-Host "Detected modules: $modules"
+          $required = @('java.base','java.desktop','java.net.http','jdk.httpserver')
+          foreach ($module in $required) {
+            if ($modules -notmatch [regex]::Escape($module)) { throw "Required module not detected: $module" }
+          }
+
+      - name: Build native Windows installer
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          jpackage `
+            --type exe `
+            --name VELTRIX `
+            --app-version 0.8.0 `
+            --vendor VELTRIX `
+            --description "VELTRIX Client - independent Minecraft Java launcher" `
+            --input build\input `
+            --main-jar VELTRIX-Launcher-0.8.0.jar `
+            --main-class dev.veltrix.launcher.VeltrixLauncher `
+            --add-modules java.base,java.desktop,java.net.http,jdk.httpserver `
+            --dest dist `
+            --icon build\veltrix-installer.ico `
+            --win-per-user-install `
+            --win-upgrade-uuid 1F377226-50A4-4D61-9DC7-92DCD7CDE700 `
+            --win-menu `
+            --win-menu-group VELTRIX `
+            --win-shortcut `
+            --win-dir-chooser `
+            --install-dir VELTRIX
+          if ($LASTEXITCODE -ne 0) { throw "jpackage failed with exit code $LASTEXITCODE" }
+
+          $built = Get-ChildItem -LiteralPath dist -Filter '*.exe' | Select-Object -First 1
+          if (-not $built) { throw 'jpackage did not create an EXE installer.' }
+          $target = Join-Path $built.DirectoryName 'VELTRIX-Setup-0.8.0.exe'
+          if ($built.FullName -ne $target) {
+            Move-Item -LiteralPath $built.FullName -Destination $target -Force
+          }
+          if (-not (Test-Path $target)) { throw 'VELTRIX-Setup-0.8.0.exe is missing after rename.' }
+          Write-Host "Installer created: $target"
+
+      - name: Upload installer as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VELTRIX-Setup-0.8.0
+          path: dist/VELTRIX-Setup-0.8.0.exe
+          if-no-files-found: error
+
+      - name: Publish GitHub Release asset
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = 'v0.8.0'
+          $asset = 'dist\VELTRIX-Setup-0.8.0.exe'
+          $savedPreference = $ErrorActionPreference
+          $ErrorActionPreference = 'SilentlyContinue'
+          gh release view $tag *> $null
+          $releaseExists = ($LASTEXITCODE -eq 0)
+          $ErrorActionPreference = $savedPreference
+
+          if ($releaseExists) {
+            gh release upload $tag $asset --clobber
+          } else {
+            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.0' --notes 'Windows installer for VELTRIX Client 0.8.0. Java 21 is bundled. Includes desktop shortcut, Start Menu entry and Windows uninstall support.'
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publishing failed.' }
