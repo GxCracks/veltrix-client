@@ -7,14 +7,16 @@
   <title>VELTRIX — Redirecting</title>
   <script>
     (() => {
-      const path = (window.location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
+      const base = '/veltrix-client';
+      let path = (window.location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
+      if (path.startsWith(base)) path = path.slice(base.length) || '/';
       const routes = {
-        '/download': '/#download',
-        '/features': '/#why-veltrix',
-        '/news': '/#news',
-        '/privacy': '/privacy.html'
+        '/download': base + '/#download',
+        '/features': base + '/#why-veltrix',
+        '/news': base + '/#news',
+        '/privacy': base + '/privacy.html'
       };
-      window.location.replace(routes[path] || '/');
+      window.location.replace(routes[path] || base + '/');
     })();
   </script>
 </head>
