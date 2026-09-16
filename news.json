@@ -4,16 +4,16 @@
     {
       "date": "2026-09-16",
       "tag": "RELEASE",
-      "title": "VELTRIX 0.8.0 is available",
-      "summary": "The latest development build adds the new Minecraft launch pipeline, Fabric preparation, game logs and improved launch diagnostics.",
-      "version": "0.8.0",
+      "title": "VELTRIX 0.8.1 is available",
+      "summary": "VELTRIX 0.8.1 fixes the Microsoft TLS handshake in the bundled runtime and wires the authenticated Minecraft start flow.",
+      "version": "0.8.1",
       "featured": true
     },
     {
       "date": "2026-09-16",
       "tag": "WEBSITE",
       "title": "Official VELTRIX project page launched",
-      "summary": "The public project page now contains launcher information, authentication details, project status, news and the current download.",
+      "summary": "The public project page contains launcher information, authentication details, project status, news and the current download.",
       "version": "",
       "featured": false
     },
