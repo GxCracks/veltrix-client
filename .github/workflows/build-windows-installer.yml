@@ -112,7 +112,7 @@ jobs:
           $startupZip = 'build\veltrix-0.8.2-startup-fix.zip'
           [IO.File]::WriteAllBytes($startupZip, [Convert]::FromBase64String($startupB64))
           $startupHash = (Get-FileHash $startupZip -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($startupHash -ne '62abf3acb506475d9ddd6c40a92d25b8b1f4cd8e98170eb5e61d7a178c60a75a') {
+          if ($startupHash -ne '9d98f237e612ad61b3df19ee9e62d48403d063101f5c4b731eb3bd8746de82e8') {
             throw "Startup patch integrity check failed: $startupHash"
           }
           Expand-Archive -LiteralPath $startupZip -DestinationPath build\startupFix -Force
@@ -162,6 +162,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'VeltrixLauncherApp.class is malformed.' }
           & javap -classpath $target -verbose dev.veltrix.launcher.ui.RightRail *> build\rightrail-javap.txt
           if ($LASTEXITCODE -ne 0) { throw 'RightRail.class is malformed.' }
+
+          $launcherAppJavap = Get-Content build\launcher-app-javap.txt -Raw
+          foreach ($token in @('LOCALAPPDATA','launcher-startup.log','launcher-startup-error.log','setDefaultUncaughtExceptionHandler')) {
+            if ($launcherAppJavap -notmatch [regex]::Escape($token)) { throw "Startup diagnostics contract missing: $token" }
+          }
 
           Remove-Item -Recurse -Force build\rightRailHash -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path build\rightRailHash | Out-Null
@@ -273,14 +278,14 @@ jobs:
           if ($diag.ExitCode -ne 0) { throw "Installed VELTRIX diagnostic failed with exit code $($diag.ExitCode)" }
 
           $veltrixHome = Join-Path $env:USERPROFILE '.veltrix'
-          $logs = Join-Path $veltrixHome 'logs'
+          $logs = Join-Path $env:LOCALAPPDATA 'VELTRIX\logs'
           New-Item -ItemType Directory -Force -Path $veltrixHome | Out-Null
           Remove-Item -Recurse -Force $logs -ErrorAction SilentlyContinue
           Set-Content -LiteralPath (Join-Path $veltrixHome 'launcher.properties') -Value 'bad=\uZZZZ' -Encoding ascii
 
           $gui = Start-Process -FilePath $exe -PassThru
-          $startupLog = Join-Path $logs 'startup.log'
-          $errorLog = Join-Path $logs 'startup-error.log'
+          $startupLog = Join-Path $logs 'launcher-startup.log'
+          $errorLog = Join-Path $logs 'launcher-startup-error.log'
           $deadline = (Get-Date).AddSeconds(20)
           $ready = $false
           while ((Get-Date) -lt $deadline) {
@@ -293,9 +298,9 @@ jobs:
           }
 
           if (-not $ready) {
-            Write-Host '--- startup.log ---'
+            Write-Host '--- launcher-startup.log ---'
             if (Test-Path $startupLog) { Get-Content $startupLog } else { Write-Host '(missing)' }
-            Write-Host '--- startup-error.log ---'
+            Write-Host '--- launcher-startup-error.log ---'
             if (Test-Path $errorLog) { Get-Content $errorLog } else { Write-Host '(missing)' }
             if ($gui.HasExited) { throw "Installed VELTRIX exited during startup. Exit code: $($gui.ExitCode)" }
             Stop-Process -Id $gui.Id -Force -ErrorAction SilentlyContinue
@@ -331,6 +336,6 @@ jobs:
           if ($releaseExists) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Fixes the Windows no-window startup crash by replacing the corrupted RightRail classes with validated classes from the working launcher. Also keeps the TLS crypto runtime fix, recovers malformed persisted settings, writes startup diagnostics, and is release-gated by launching the installed Windows app and confirming UI startup.'
+            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Fixes the Windows no-window startup crash by replacing the corrupted RightRail classes with validated classes from the working launcher. Also keeps the TLS crypto runtime fix, recovers malformed persisted settings, writes startup diagnostics to LocalAppData, and is release-gated by launching the installed Windows app and confirming UI startup.'
           }
           if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publishing failed.' }
