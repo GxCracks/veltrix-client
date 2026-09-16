@@ -7,6 +7,7 @@ on:
     paths:
       - 'downloads/VELTRIX-Client-0.8.0-Windows.zip'
       - '.github/installer/veltrix-0.8.1.patch.b64.*'
+      - '.github/installer/veltrix-0.8.2.patch.b64.*'
       - 'assets/veltrix-logo.png'
       - '.github/workflows/build-windows-installer.yml'
 
@@ -23,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -62,21 +63,22 @@ jobs:
           magick assets\veltrix-logo.png -background none -define icon:auto-resize=256,128,64,48,32,16 build\veltrix-installer.ico
           if (-not (Test-Path build\veltrix-installer.ico)) { throw 'VELTRIX installer icon was not generated.' }
 
-      - name: Reconstruct VELTRIX 0.8.1 launcher
+      - name: Reconstruct clean VELTRIX 0.8.2 launcher
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path build\public | Out-Null
           New-Item -ItemType Directory -Force -Path build\input | Out-Null
-          New-Item -ItemType Directory -Force -Path build\patch | Out-Null
+          New-Item -ItemType Directory -Force -Path build\patch081 | Out-Null
+          New-Item -ItemType Directory -Force -Path build\patch082 | Out-Null
 
           Expand-Archive -LiteralPath downloads\VELTRIX-Client-0.8.0-Windows.zip -DestinationPath build\public -Force
           $base = 'build\public\VELTRIX-Client-0.8.0\VELTRIX-Launcher-0.8.0.jar'
           if (-not (Test-Path $base)) { throw "Base launcher missing: $base" }
-          $target = 'build\input\VELTRIX-Launcher-0.8.1.jar'
+          $target = 'build\input\VELTRIX-Launcher-0.8.2.jar'
           Copy-Item -LiteralPath $base -Destination $target -Force
 
-          $parts = @(
+          $parts081 = @(
             '.github\installer\veltrix-0.8.1.patch.b64.00.00',
             '.github\installer\veltrix-0.8.1.patch.b64.00.01',
             '.github\installer\veltrix-0.8.1.patch.b64.00.02',
@@ -94,32 +96,72 @@ jobs:
             '.github\installer\veltrix-0.8.1.patch.b64.05.03',
             '.github\installer\veltrix-0.8.1.patch.b64.06'
           )
-          foreach ($part in $parts) {
-            if (-not (Test-Path $part)) { throw "Missing patch part: $part" }
+          foreach ($part in $parts081) {
+            if (-not (Test-Path $part)) { throw "Missing 0.8.1 patch part: $part" }
           }
-          $b64 = ($parts | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
-          $patchZip = 'build\veltrix-0.8.1-patch.zip'
-          [IO.File]::WriteAllBytes($patchZip, [Convert]::FromBase64String($b64))
-          Expand-Archive -LiteralPath $patchZip -DestinationPath build\patch -Force
-          jar --update --file $target -C build\patch .
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to patch 0.8.1 launcher JAR.' }
+          $b64 = ($parts081 | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
+          $patch081 = 'build\veltrix-0.8.1-patch.zip'
+          [IO.File]::WriteAllBytes($patch081, [Convert]::FromBase64String($b64))
+          Expand-Archive -LiteralPath $patch081 -DestinationPath build\patch081 -Force
+          jar --update --file $target -C build\patch081 .
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply 0.8.1 base patch.' }
+
+          $parts082 = @(
+            '.github\installer\veltrix-0.8.2.patch.b64.00',
+            '.github\installer\veltrix-0.8.2.patch.b64.01',
+            '.github\installer\veltrix-0.8.2.patch.b64.02',
+            '.github\installer\veltrix-0.8.2.patch.b64.03',
+            '.github\installer\veltrix-0.8.2.patch.b64.04',
+            '.github\installer\veltrix-0.8.2.patch.b64.05'
+          )
+          foreach ($part in $parts082) {
+            if (-not (Test-Path $part)) { throw "Missing 0.8.2 hotfix patch part: $part" }
+          }
+          $b64 = ($parts082 | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
+          $patch082 = 'build\veltrix-0.8.2-patch.zip'
+          [IO.File]::WriteAllBytes($patch082, [Convert]::FromBase64String($b64))
+          $patchHash = (Get-FileHash $patch082 -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($patchHash -ne '715d17af7d1e339c13d16ad3d604a7ed9c9902e29e2e43059194cf97edc2156a') {
+            throw "0.8.2 patch integrity check failed: $patchHash"
+          }
+          Expand-Archive -LiteralPath $patch082 -DestinationPath build\patch082 -Force
+          jar --update --file $target -C build\patch082 .
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply 0.8.2 hotfix patch.' }
 
           $listing = (& jar tf $target) -join "`n"
           $requiredClasses = @(
             'dev/veltrix/launcher/auth/MicrosoftMinecraftAuthService.class',
             'dev/veltrix/launcher/launch/MinecraftLaunchCoordinator.class',
             'dev/veltrix/launcher/ui/AccountDialog.class',
-            'dev/veltrix/launcher/ui/PlayView.class'
+            'dev/veltrix/launcher/ui/PlayView.class',
+            'dev/veltrix/launcher/ui/RightRail.class'
           )
           foreach ($class in $requiredClasses) {
-            if ($listing -notmatch [regex]::Escape($class)) { throw "Missing patched class: $class" }
+            if ($listing -notmatch [regex]::Escape($class)) { throw "Missing launcher class: $class" }
           }
+
+          # Regression guard for the exact 0.8.1 failure: Java must be able to parse RightRail.class.
+          & javap -classpath $target -verbose dev.veltrix.launcher.ui.RightRail *> build\rightrail-javap.txt
+          if ($LASTEXITCODE -ne 0) { throw 'RightRail.class is malformed and cannot be parsed by Java.' }
+
+          Remove-Item -Recurse -Force build\class-hash -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path build\class-hash | Out-Null
+          Push-Location build\class-hash
+          jar xf ..\input\VELTRIX-Launcher-0.8.2.jar dev/veltrix/launcher/ui/RightRail.class
+          Pop-Location
+          $rightRailHash = (Get-FileHash 'build\class-hash\dev\veltrix\launcher\ui\RightRail.class' -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($rightRailHash -ne '73b335860644a49f9def2e13514cf36c3f5168aba53b2c4fc02a6b61a42e07f2') {
+            throw "Unexpected RightRail.class hash: $rightRailHash"
+          }
+
+          & java -cp $target dev.veltrix.launcher.VeltrixLauncher --diagnose
+          if ($LASTEXITCODE -ne 0) { throw 'Launcher diagnostic mode failed before packaging.' }
 
       - name: Verify Java runtime modules
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $jar = 'build\input\VELTRIX-Launcher-0.8.1.jar'
+          $jar = 'build\input\VELTRIX-Launcher-0.8.2.jar'
           $modules = (& jdeps --multi-release 21 --ignore-missing-deps --print-module-deps $jar).Trim()
           Write-Host "Detected static modules: $modules"
           $required = @('java.base','java.desktop','java.net.http','jdk.httpserver')
@@ -138,11 +180,11 @@ jobs:
           jpackage `
             --type exe `
             --name VELTRIX `
-            --app-version 0.8.1 `
+            --app-version 0.8.2 `
             --vendor VELTRIX `
             --description "VELTRIX Client - independent Minecraft Java launcher" `
             --input build\input `
-            --main-jar VELTRIX-Launcher-0.8.1.jar `
+            --main-jar VELTRIX-Launcher-0.8.2.jar `
             --main-class dev.veltrix.launcher.VeltrixLauncher `
             --add-modules java.base,java.desktop,java.net.http,jdk.httpserver,jdk.crypto.ec `
             --dest dist `
@@ -158,18 +200,43 @@ jobs:
 
           $built = Get-ChildItem -LiteralPath dist -Filter '*.exe' | Select-Object -First 1
           if (-not $built) { throw 'jpackage did not create an EXE installer.' }
-          $target = Join-Path $built.DirectoryName 'VELTRIX-Setup-0.8.1.exe'
+          $target = Join-Path $built.DirectoryName 'VELTRIX-Setup-0.8.2.exe'
           if ($built.FullName -ne $target) {
             Move-Item -LiteralPath $built.FullName -Destination $target -Force
           }
-          if (-not (Test-Path $target)) { throw 'VELTRIX-Setup-0.8.1.exe is missing after rename.' }
+          if (-not (Test-Path $target)) { throw 'VELTRIX-Setup-0.8.2.exe is missing after rename.' }
           Write-Host "Installer created: $target"
+
+      - name: Install and smoke-test packaged VELTRIX
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Resolve-Path 'dist\VELTRIX-Setup-0.8.2.exe'
+          $install = Start-Process -FilePath $installer -ArgumentList '/quiet','/norestart' -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Installer smoke test failed with exit code $($install.ExitCode)" }
+
+          $exe = Join-Path $env:LOCALAPPDATA 'VELTRIX\VELTRIX.exe'
+          if (-not (Test-Path $exe)) {
+            $exe = Get-ChildItem $env:LOCALAPPDATA -Filter VELTRIX.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+          }
+          if (-not $exe) { throw 'Installed VELTRIX.exe not found after installation.' }
+
+          $diag = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
+          if ($diag.ExitCode -ne 0) { throw "Installed VELTRIX diagnostic failed with exit code $($diag.ExitCode)" }
+
+          $gui = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 10
+          if ($gui.HasExited) {
+            throw "Installed VELTRIX closed during startup smoke test. Exit code: $($gui.ExitCode)"
+          }
+          Write-Host "VELTRIX GUI remained alive for 10 seconds. PID: $($gui.Id)"
+          Stop-Process -Id $gui.Id -Force
 
       - name: Upload installer as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VELTRIX-Setup-0.8.1
-          path: dist/VELTRIX-Setup-0.8.1.exe
+          name: VELTRIX-Setup-0.8.2
+          path: dist/VELTRIX-Setup-0.8.2.exe
           if-no-files-found: error
 
       - name: Publish GitHub Release asset
@@ -178,8 +245,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $tag = 'v0.8.1'
-          $asset = 'dist\VELTRIX-Setup-0.8.1.exe'
+          $tag = 'v0.8.2'
+          $asset = 'dist\VELTRIX-Setup-0.8.2.exe'
           $savedPreference = $ErrorActionPreference
           $ErrorActionPreference = 'SilentlyContinue'
           gh release view $tag *> $null
@@ -189,6 +256,6 @@ jobs:
           if ($releaseExists) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.1' --notes 'Fixes Microsoft TLS handshake by bundling jdk.crypto.ec, adds specific TLS error handling, and wires the authenticated Minecraft start flow.'
+            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Fixes the Windows startup crash caused by a malformed RightRail class, keeps the Microsoft TLS crypto runtime fix, and adds a release-blocking Windows startup smoke test.'
           }
           if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publishing failed.' }
