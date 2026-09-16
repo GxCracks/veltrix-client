@@ -7,8 +7,7 @@ on:
     paths:
       - 'downloads/VELTRIX-Client-0.8.0-Windows.zip'
       - '.github/installer/veltrix-0.8.1.patch.b64.*'
-      - '.github/installer/veltrix-0.8.2.patch.b64.*'
-      - '.github/installer/veltrix-0.8.2-rightrail-fix.b64.*'
+      - '.github/installer/veltrix-startup-debug-class.b64'
       - 'assets/veltrix-logo.png'
       - '.github/workflows/build-windows-installer.yml'
 
@@ -64,15 +63,14 @@ jobs:
           magick assets\veltrix-logo.png -background none -define icon:auto-resize=256,128,64,48,32,16 build\veltrix-installer.ico
           if (-not (Test-Path build\veltrix-installer.ico)) { throw 'VELTRIX installer icon was not generated.' }
 
-      - name: Reconstruct clean VELTRIX 0.8.2 launcher
+      - name: Reconstruct known-good VELTRIX 0.8.2 launcher
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path build\public | Out-Null
           New-Item -ItemType Directory -Force -Path build\input | Out-Null
           New-Item -ItemType Directory -Force -Path build\patch081 | Out-Null
-          New-Item -ItemType Directory -Force -Path build\patch082 | Out-Null
-          New-Item -ItemType Directory -Force -Path build\patch082RightRail | Out-Null
+          New-Item -ItemType Directory -Force -Path build\startupFix | Out-Null
 
           Expand-Archive -LiteralPath downloads\VELTRIX-Client-0.8.0-Windows.zip -DestinationPath build\public -Force
           $base = 'build\public\VELTRIX-Client-0.8.0\VELTRIX-Launcher-0.8.0.jar'
@@ -80,6 +78,7 @@ jobs:
           $target = 'build\input\VELTRIX-Launcher-0.8.2.jar'
           Copy-Item -LiteralPath $base -Destination $target -Force
 
+          # Rebuild the already released and verified 0.8.1 functionality first.
           $parts081 = @(
             '.github\installer\veltrix-0.8.1.patch.b64.00.00',
             '.github\installer\veltrix-0.8.1.patch.b64.00.01',
@@ -106,50 +105,25 @@ jobs:
           [IO.File]::WriteAllBytes($patch081, [Convert]::FromBase64String($b64))
           Expand-Archive -LiteralPath $patch081 -DestinationPath build\patch081 -Force
           jar --update --file $target -C build\patch081 .
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply 0.8.1 base patch.' }
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the known-good 0.8.1 patch.' }
 
-          $parts082 = @(
-            '.github\installer\veltrix-0.8.2.patch.b64.00',
-            '.github\installer\veltrix-0.8.2.patch.b64.01',
-            '.github\installer\veltrix-0.8.2.patch.b64.02',
-            '.github\installer\veltrix-0.8.2.patch.b64.03',
-            '.github\installer\veltrix-0.8.2.patch.b64.04',
-            '.github\installer\veltrix-0.8.2.patch.b64.05'
-          )
-          foreach ($part in $parts082) {
-            if (-not (Test-Path $part)) { throw "Missing 0.8.2 hotfix patch part: $part" }
+          # Apply only the validated 0.8.2 startup-resilience patch. This replaces
+          # the previous corrupt 0.8.2 patch archive which failed before packaging.
+          $startupB64 = (Get-Content '.github\installer\veltrix-startup-debug-class.b64' -Raw).Trim()
+          $startupZip = 'build\veltrix-0.8.2-startup-fix.zip'
+          [IO.File]::WriteAllBytes($startupZip, [Convert]::FromBase64String($startupB64))
+          $startupHash = (Get-FileHash $startupZip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($startupHash -ne '62abf3acb506475d9ddd6c40a92d25b8b1f4cd8e98170eb5e61d7a178c60a75a') {
+            throw "Startup patch integrity check failed: $startupHash"
           }
-          $b64 = ($parts082 | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
-          $patch082 = 'build\veltrix-0.8.2-patch.zip'
-          [IO.File]::WriteAllBytes($patch082, [Convert]::FromBase64String($b64))
-          $patchHash = (Get-FileHash $patch082 -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($patchHash -ne '3d0062a96008cbdc8790c9d3100e301bb15df677b301269ac2f6bf5388177f4a') {
-            throw "0.8.2 patch integrity check failed: $patchHash"
-          }
-          Expand-Archive -LiteralPath $patch082 -DestinationPath build\patch082 -Force
-          jar --update --file $target -C build\patch082 .
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply 0.8.2 hotfix patch.' }
-
-          # Apply the verified RightRail replacement last. The earlier 0.8.1/0.8.2
-          # patch contained a malformed RightRail.class that made the installed GUI
-          # process terminate immediately after launch.
-          $parts082RightRail = @(
-            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.00',
-            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.01',
-            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.02'
-          )
-          foreach ($part in $parts082RightRail) {
-            if (-not (Test-Path $part)) { throw "Missing RightRail startup fix part: $part" }
-          }
-          $b64 = ($parts082RightRail | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
-          $rightRailPatch = 'build\veltrix-0.8.2-rightrail-fix.zip'
-          [IO.File]::WriteAllBytes($rightRailPatch, [Convert]::FromBase64String($b64))
-          Expand-Archive -LiteralPath $rightRailPatch -DestinationPath build\patch082RightRail -Force
-          jar --update --file $target -C build\patch082RightRail .
-          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the verified RightRail startup fix.' }
+          Expand-Archive -LiteralPath $startupZip -DestinationPath build\startupFix -Force
+          jar --update --file $target -C build\startupFix .
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the 0.8.2 startup-resilience patch.' }
 
           $listing = (& jar tf $target) -join "`n"
           $requiredClasses = @(
+            'dev/veltrix/launcher/LauncherConfig.class',
+            'dev/veltrix/launcher/VeltrixLauncherApp.class',
             'dev/veltrix/launcher/auth/MicrosoftMinecraftAuthService.class',
             'dev/veltrix/launcher/launch/MinecraftLaunchCoordinator.class',
             'dev/veltrix/launcher/ui/AccountDialog.class',
@@ -160,21 +134,41 @@ jobs:
             if ($listing -notmatch [regex]::Escape($class)) { throw "Missing launcher class: $class" }
           }
 
-          & javap -classpath $target -verbose dev.veltrix.launcher.ui.RightRail *> build\rightrail-javap.txt
-          if ($LASTEXITCODE -ne 0) { throw 'RightRail.class is malformed and cannot be parsed by Java.' }
-
-          Remove-Item -Recurse -Force build\class-hash -ErrorAction SilentlyContinue
-          New-Item -ItemType Directory -Force -Path build\class-hash | Out-Null
-          Push-Location build\class-hash
-          jar xf ..\input\VELTRIX-Launcher-0.8.2.jar dev/veltrix/launcher/ui/RightRail.class
-          Pop-Location
-          $rightRailHash = (Get-FileHash 'build\class-hash\dev\veltrix\launcher\ui\RightRail.class' -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($rightRailHash -ne '73b335860644a49f9def2e13514cf36c3f5168aba53b2c4fc02a6b61a42e07f2') {
-            throw "Unexpected RightRail.class hash: $rightRailHash"
-          }
+          & javap -classpath $target -verbose dev.veltrix.launcher.LauncherConfig *> build\launcher-config-javap.txt
+          if ($LASTEXITCODE -ne 0) { throw 'LauncherConfig.class is malformed.' }
+          & javap -classpath $target -verbose dev.veltrix.launcher.VeltrixLauncherApp *> build\launcher-app-javap.txt
+          if ($LASTEXITCODE -ne 0) { throw 'VeltrixLauncherApp.class is malformed.' }
 
           & java -cp $target dev.veltrix.launcher.VeltrixLauncher --diagnose
           if ($LASTEXITCODE -ne 0) { throw 'Launcher diagnostic mode failed before packaging.' }
+
+      - name: Regression test corrupt persisted settings
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $jar = (Resolve-Path 'build\input\VELTRIX-Launcher-0.8.2.jar').Path
+          $testDir = Join-Path $PWD 'build\bad-config-test'
+          New-Item -ItemType Directory -Force -Path $testDir | Out-Null
+          Set-Content -LiteralPath (Join-Path $testDir 'launcher.properties') -Value 'bad=\uZZZZ' -Encoding ascii
+
+          @'
+          import dev.veltrix.launcher.LauncherConfig;
+          import java.nio.file.Path;
+          public class BadConfigRegression {
+              public static void main(String[] args) {
+                  LauncherConfig config = new LauncherConfig(Path.of(args[0]));
+                  config.load();
+                  if (!config.get("bad", "fallback").equals("fallback")) System.exit(3);
+                  if (config.loadWarning().isBlank()) System.exit(4);
+                  System.out.println(config.loadWarning());
+              }
+          }
+          '@ | Set-Content -LiteralPath build\BadConfigRegression.java -Encoding utf8
+
+          javac -cp $jar -d build build\BadConfigRegression.java
+          if ($LASTEXITCODE -ne 0) { throw 'Could not compile corrupt-config regression test.' }
+          java -cp "$jar;build" BadConfigRegression $testDir
+          if ($LASTEXITCODE -ne 0) { throw 'Corrupt persisted settings can still crash launcher startup.' }
 
       - name: Verify Java runtime modules
         shell: powershell
@@ -226,11 +220,11 @@ jobs:
           if (-not (Test-Path $target)) { throw 'VELTRIX-Setup-0.8.2.exe is missing after rename.' }
           Write-Host "Installer created: $target"
 
-      - name: Install and smoke-test packaged VELTRIX
+      - name: Install and prove packaged VELTRIX actually opens
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $installer = Resolve-Path 'dist\VELTRIX-Setup-0.8.2.exe'
+          $installer = (Resolve-Path 'dist\VELTRIX-Setup-0.8.2.exe').Path
           $install = Start-Process -FilePath $installer -ArgumentList '/quiet','/norestart' -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "Installer smoke test failed with exit code $($install.ExitCode)" }
 
@@ -239,16 +233,46 @@ jobs:
             $exe = Get-ChildItem $env:LOCALAPPDATA -Filter VELTRIX.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
           }
           if (-not $exe) { throw 'Installed VELTRIX.exe not found after installation.' }
+          Write-Host "Installed executable: $exe"
 
           $diag = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
           if ($diag.ExitCode -ne 0) { throw "Installed VELTRIX diagnostic failed with exit code $($diag.ExitCode)" }
 
+          # Reproduce the persisted-settings failure that can make javaw apps look
+          # like they do nothing: a malformed launcher.properties from an old install.
+          $veltrixHome = Join-Path $env:USERPROFILE '.veltrix'
+          $logs = Join-Path $veltrixHome 'logs'
+          New-Item -ItemType Directory -Force -Path $veltrixHome | Out-Null
+          Remove-Item -Recurse -Force $logs -ErrorAction SilentlyContinue
+          Set-Content -LiteralPath (Join-Path $veltrixHome 'launcher.properties') -Value 'bad=\uZZZZ' -Encoding ascii
+
           $gui = Start-Process -FilePath $exe -PassThru
-          Start-Sleep -Seconds 10
-          if ($gui.HasExited) {
-            throw "Installed VELTRIX closed during startup smoke test. Exit code: $($gui.ExitCode)"
+          $startupLog = Join-Path $logs 'startup.log'
+          $errorLog = Join-Path $logs 'startup-error.log'
+          $deadline = (Get-Date).AddSeconds(20)
+          $ready = $false
+          while ((Get-Date) -lt $deadline) {
+            if ($gui.HasExited) { break }
+            if (Test-Path $startupLog) {
+              $text = Get-Content $startupLog -Raw
+              if ($text -match 'UI startup complete') { $ready = $true; break }
+            }
+            Start-Sleep -Milliseconds 500
           }
-          Write-Host "VELTRIX GUI remained alive for 10 seconds. PID: $($gui.Id)"
+
+          if (-not $ready) {
+            Write-Host '--- startup.log ---'
+            if (Test-Path $startupLog) { Get-Content $startupLog } else { Write-Host '(missing)' }
+            Write-Host '--- startup-error.log ---'
+            if (Test-Path $errorLog) { Get-Content $errorLog } else { Write-Host '(missing)' }
+            if ($gui.HasExited) { throw "Installed VELTRIX exited during startup. Exit code: $($gui.ExitCode)" }
+            Stop-Process -Id $gui.Id -Force -ErrorAction SilentlyContinue
+            throw 'Installed VELTRIX never reported a completed UI startup.'
+          }
+
+          if ($gui.HasExited) { throw "VELTRIX exited after reporting startup complete. Exit code: $($gui.ExitCode)" }
+          Write-Host 'PASS: installed VELTRIX reached UI startup complete and stayed running.'
+          Get-Content $startupLog
           Stop-Process -Id $gui.Id -Force
 
       - name: Upload installer as workflow artifact
@@ -275,6 +299,6 @@ jobs:
           if ($releaseExists) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Fixes the Windows startup crash caused by a malformed RightRail class, keeps the Microsoft TLS crypto runtime fix, and adds a release-blocking Windows startup smoke test.'
+            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Windows startup reliability release. Rebuilt from the known-good 0.8.1 launcher, keeps the Microsoft TLS crypto runtime fix, recovers from malformed persisted settings, writes startup diagnostics, and is release-gated by launching the installed Windows app and confirming UI startup.'
           }
           if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publishing failed.' }
