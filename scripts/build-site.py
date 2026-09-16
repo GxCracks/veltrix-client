@@ -6,8 +6,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "_site"
 
 SITE_URL = "https://gxcracks.github.io/veltrix-client/"
-CURRENT_VERSION = "0.8.1"
-WINDOWS_INSTALLER = "https://github.com/GxCracks/veltrix-client/releases/download/v0.8.1/VELTRIX-Setup-0.8.1.exe"
+CURRENT_VERSION = "0.8.2"
+WINDOWS_INSTALLER = "https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
 
 PUBLIC_FILES = [
     "index.html",
@@ -82,9 +82,9 @@ def validate():
     if PRIVACY_URL not in privacy:
         raise SystemExit("GitHub Pages privacy canonical metadata missing")
     if WINDOWS_INSTALLER not in index or WINDOWS_INSTALLER not in script:
-        raise SystemExit("VELTRIX 0.8.1 Windows installer link missing")
+        raise SystemExit("VELTRIX 0.8.2 Windows installer link missing")
     if f"VELTRIX Client {CURRENT_VERSION}" not in index:
-        raise SystemExit("VELTRIX 0.8.1 version text missing")
+        raise SystemExit("VELTRIX 0.8.2 version text missing")
     if "https://veltrixclient.de" in index or "https://veltrixclient.de" in privacy:
         raise SystemExit("Old custom-domain metadata remains in deployed pages")
 
