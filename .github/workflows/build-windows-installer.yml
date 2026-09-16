@@ -8,6 +8,7 @@ on:
       - 'downloads/VELTRIX-Client-0.8.0-Windows.zip'
       - '.github/installer/veltrix-0.8.1.patch.b64.*'
       - '.github/installer/veltrix-startup-debug-class.b64'
+      - '.github/installer/veltrix-0.8.2-rightrail-fix.b64.*'
       - 'assets/veltrix-logo.png'
       - '.github/workflows/build-windows-installer.yml'
 
@@ -71,6 +72,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path build\input | Out-Null
           New-Item -ItemType Directory -Force -Path build\patch081 | Out-Null
           New-Item -ItemType Directory -Force -Path build\startupFix | Out-Null
+          New-Item -ItemType Directory -Force -Path build\rightRailFix | Out-Null
 
           Expand-Archive -LiteralPath downloads\VELTRIX-Client-0.8.0-Windows.zip -DestinationPath build\public -Force
           $base = 'build\public\VELTRIX-Client-0.8.0\VELTRIX-Launcher-0.8.0.jar'
@@ -117,6 +119,27 @@ jobs:
           jar --update --file $target -C build\startupFix .
           if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the 0.8.2 startup-resilience patch.' }
 
+          # The old installer patch contained a corrupted RightRail.class. Always
+          # overwrite it last with the three classes extracted from the working 0.8.1 JAR.
+          $rightRailParts = @(
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.00',
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.01',
+            '.github\installer\veltrix-0.8.2-rightrail-fix.b64.02'
+          )
+          foreach ($part in $rightRailParts) {
+            if (-not (Test-Path $part)) { throw "Missing validated RightRail patch part: $part" }
+          }
+          $rightRailB64 = ($rightRailParts | ForEach-Object { (Get-Content $_ -Raw).Trim() }) -join ''
+          $rightRailZip = 'build\veltrix-0.8.2-rightrail-good.zip'
+          [IO.File]::WriteAllBytes($rightRailZip, [Convert]::FromBase64String($rightRailB64))
+          $rightRailZipHash = (Get-FileHash $rightRailZip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($rightRailZipHash -ne 'aee89f97cebb348ad8540b8a574b1e4e2137e6e0d438e06d3e6e6a706355f82e') {
+            throw "Validated RightRail ZIP integrity check failed: $rightRailZipHash"
+          }
+          Expand-Archive -LiteralPath $rightRailZip -DestinationPath build\rightRailFix -Force
+          jar --update --file $target -C build\rightRailFix .
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to apply validated RightRail classes.' }
+
           $listing = (& jar tf $target) -join "`n"
           $requiredClasses = @(
             'dev/veltrix/launcher/LauncherConfig.class',
@@ -125,7 +148,9 @@ jobs:
             'dev/veltrix/launcher/launch/MinecraftLaunchCoordinator.class',
             'dev/veltrix/launcher/ui/AccountDialog.class',
             'dev/veltrix/launcher/ui/PlayView.class',
-            'dev/veltrix/launcher/ui/RightRail.class'
+            'dev/veltrix/launcher/ui/RightRail.class',
+            'dev/veltrix/launcher/ui/RightRail$1.class',
+            'dev/veltrix/launcher/ui/RightRail$2.class'
           )
           foreach ($class in $requiredClasses) {
             if ($listing -notmatch [regex]::Escape($class)) { throw "Missing launcher class: $class" }
@@ -135,6 +160,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'LauncherConfig.class is malformed.' }
           & javap -classpath $target -verbose dev.veltrix.launcher.VeltrixLauncherApp *> build\launcher-app-javap.txt
           if ($LASTEXITCODE -ne 0) { throw 'VeltrixLauncherApp.class is malformed.' }
+          & javap -classpath $target -verbose dev.veltrix.launcher.ui.RightRail *> build\rightrail-javap.txt
+          if ($LASTEXITCODE -ne 0) { throw 'RightRail.class is malformed.' }
+
+          Remove-Item -Recurse -Force build\rightRailHash -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path build\rightRailHash | Out-Null
+          Push-Location build\rightRailHash
+          jar xf ..\input\VELTRIX-Launcher-0.8.2.jar dev/veltrix/launcher/ui/RightRail.class
+          Pop-Location
+          $rightRailClassHash = (Get-FileHash 'build\rightRailHash\dev\veltrix\launcher\ui\RightRail.class' -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($rightRailClassHash -ne '17cbc326cb2b6ffe47b23480e0cdefb35ceac2ed519a9e65a6f043fd9361d17b') {
+            throw "Unexpected RightRail.class hash after patching: $rightRailClassHash"
+          }
 
           & java -cp $target dev.veltrix.launcher.VeltrixLauncher --diagnose
           if ($LASTEXITCODE -ne 0) { throw 'Launcher diagnostic mode failed before packaging.' }
@@ -294,6 +331,6 @@ jobs:
           if ($releaseExists) {
             gh release upload $tag $asset --clobber
           } else {
-            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Windows startup reliability release. Rebuilt from the known-good 0.8.1 launcher, keeps the Microsoft TLS crypto runtime fix, recovers from malformed persisted settings, writes startup diagnostics, and is release-gated by launching the installed Windows app and confirming UI startup.'
+            gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.2' --notes 'Fixes the Windows no-window startup crash by replacing the corrupted RightRail classes with validated classes from the working launcher. Also keeps the TLS crypto runtime fix, recovers malformed persisted settings, writes startup diagnostics, and is release-gated by launching the installed Windows app and confirming UI startup.'
           }
           if ($LASTEXITCODE -ne 0) { throw 'GitHub Release publishing failed.' }
