@@ -1,0 +1,102 @@
+name: Diagnose installed VELTRIX launcher
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-windows-launcher.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download released 0.8.1 installer
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path diagnostic | Out-Null
+          gh release download v0.8.1 --pattern 'VELTRIX-Setup-0.8.1.exe' --dir diagnostic --clobber
+          $installer = Resolve-Path 'diagnostic\VELTRIX-Setup-0.8.1.exe'
+          Get-Item $installer | Format-List FullName,Length,LastWriteTime | Out-String | Tee-Object -FilePath diagnostic\installer-info.txt
+          Get-FileHash $installer -Algorithm SHA256 | Format-List | Out-String | Tee-Object -FilePath diagnostic\installer-sha256.txt
+
+      - name: Install VELTRIX silently
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Resolve-Path 'diagnostic\VELTRIX-Setup-0.8.1.exe'
+          $p = Start-Process -FilePath $installer -ArgumentList '/quiet','/norestart' -Wait -PassThru
+          "Installer exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\install-result.txt
+          if ($p.ExitCode -ne 0) { throw "Installer failed with exit code $($p.ExitCode)" }
+
+      - name: Locate installed launcher and runtime
+        id: locate
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $candidates = @(
+            (Join-Path $env:LOCALAPPDATA 'VELTRIX\VELTRIX.exe'),
+            (Join-Path $env:LOCALAPPDATA 'Programs\VELTRIX\VELTRIX.exe'),
+            (Join-Path $env:ProgramFiles 'VELTRIX\VELTRIX.exe')
+          )
+          $exe = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $exe) {
+            $exe = Get-ChildItem $env:LOCALAPPDATA -Filter VELTRIX.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+          }
+          if (-not $exe) { throw 'Installed VELTRIX.exe was not found.' }
+          $root = Split-Path -Parent $exe
+          "Installed EXE: $exe`nInstall root: $root" | Tee-Object -FilePath diagnostic\installed-path.txt
+          "exe=$exe" >> $env:GITHUB_OUTPUT
+          "root=$root" >> $env:GITHUB_OUTPUT
+          Get-ChildItem -LiteralPath $root -Recurse | Select-Object FullName,Length | Format-Table -AutoSize | Out-String -Width 4096 | Set-Content diagnostic\installed-tree.txt
+
+          $java = Join-Path $root 'runtime\bin\java.exe'
+          if (-not (Test-Path $java)) { throw "Bundled Java missing: $java" }
+          & $java --list-modules | Set-Content diagnostic\runtime-modules.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled Java failed to start.' }
+
+      - name: Run native launcher diagnostic mode
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = '${{ steps.locate.outputs.exe }}'
+          $p = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
+          "Native diagnostic exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\native-diagnose.txt
+          if ($p.ExitCode -ne 0) { throw "Native VELTRIX launcher failed in --diagnose with exit code $($p.ExitCode)" }
+
+      - name: Smoke test installed GUI startup
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $exe = '${{ steps.locate.outputs.exe }}'
+          $p = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 10
+          if ($p.HasExited) {
+            "VELTRIX exited during startup. Exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\gui-smoke.txt
+            Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue |
+              Where-Object { $_.Message -match 'VELTRIX|java|jvm' -or $_.ProviderName -match 'Application Error' } |
+              Select-Object TimeCreated,ProviderName,Id,LevelDisplayName,Message |
+              Format-List | Out-String -Width 4096 | Set-Content diagnostic\windows-events.txt
+            throw "Installed VELTRIX.exe exits immediately with code $($p.ExitCode)"
+          }
+          "VELTRIX process remained alive for 10 seconds. PID: $($p.Id)" | Tee-Object -FilePath diagnostic\gui-smoke.txt
+          Stop-Process -Id $p.Id -Force
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: veltrix-windows-startup-diagnostics
+          path: diagnostic
+          if-no-files-found: warn
