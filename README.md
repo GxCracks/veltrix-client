@@ -25,7 +25,7 @@ Edit `news.json` and add a new item at the top of the `items` array. Commit and 
 
 ## Current download
 
-Windows installer: `https://github.com/GxCracks/veltrix-client/releases/download/v0.8.1/VELTRIX-Setup-0.8.1.exe`
+Windows installer: `https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe`
 
 ## Publishing
 
@@ -37,7 +37,7 @@ The public download dialog offers Windows as the current real build. macOS and L
 
 ## Platforms
 
-- Windows: VELTRIX Client 0.8.1 available
+- Windows: VELTRIX Client 0.8.2 available
 - macOS: coming soon
 - Linux: coming soon
 
@@ -45,8 +45,8 @@ The public download dialog offers Windows as the current real build. macOS and L
 
 The public Windows button points to the native GitHub Release asset:
 
-`https://github.com/GxCracks/veltrix-client/releases/download/v0.8.1/VELTRIX-Setup-0.8.1.exe`
+`https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe`
 
-The workflow `.github/workflows/build-windows-installer.yml` builds the EXE on `windows-latest` using Java 21 `jpackage`. VELTRIX 0.8.1 bundles `jdk.crypto.ec` for Microsoft TLS support. The installed app includes its Java runtime, creates a Desktop shortcut and Start Menu entry, and registers normal Windows uninstall support.
+The workflow `.github/workflows/build-windows-installer.yml` builds the EXE on `windows-latest` using Java 21 `jpackage`. VELTRIX 0.8.2 bundles `jdk.crypto.ec` for Microsoft TLS support and is release-gated by installing and launching the packaged Windows application until the UI reports a completed startup. The installed app includes its Java runtime, creates a Desktop shortcut and Start Menu entry, and registers normal Windows uninstall support.
 
 The current installer is unsigned. Windows SmartScreen may warn until VELTRIX is code-signed with a trusted certificate.
