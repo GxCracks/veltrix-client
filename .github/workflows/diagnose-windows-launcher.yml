@@ -40,7 +40,7 @@ jobs:
           "Installer exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\install-result.txt
           if ($p.ExitCode -ne 0) { throw "Installer failed with exit code $($p.ExitCode)" }
 
-      - name: Locate installed launcher and runtime
+      - name: Locate installed launcher and inspect package
         id: locate
         shell: powershell
         run: |
@@ -61,10 +61,15 @@ jobs:
           "root=$root" >> $env:GITHUB_OUTPUT
           Get-ChildItem -LiteralPath $root -Recurse | Select-Object FullName,Length | Format-Table -AutoSize | Out-String -Width 4096 | Set-Content diagnostic\installed-tree.txt
 
-          $java = Join-Path $root 'runtime\bin\java.exe'
-          if (-not (Test-Path $java)) { throw "Bundled Java missing: $java" }
-          & $java --list-modules | Set-Content diagnostic\runtime-modules.txt
-          if ($LASTEXITCODE -ne 0) { throw 'Bundled Java failed to start.' }
+          $cfg = Join-Path $root 'app\VELTRIX.cfg'
+          if (-not (Test-Path $cfg)) { throw "jpackage launcher config missing: $cfg" }
+          Get-Content -LiteralPath $cfg -Raw | Set-Content diagnostic\VELTRIX.cfg.txt
+
+          $modulesImage = Join-Path $root 'runtime\lib\modules'
+          $jvm = Join-Path $root 'runtime\bin\server\jvm.dll'
+          if (-not (Test-Path $modulesImage)) { throw "Runtime module image missing: $modulesImage" }
+          if (-not (Test-Path $jvm)) { throw "Bundled JVM missing: $jvm" }
+          "Runtime module image: OK`nBundled jvm.dll: OK" | Set-Content diagnostic\runtime-package.txt
 
       - name: Run native launcher diagnostic mode
         shell: powershell
@@ -73,7 +78,13 @@ jobs:
           $exe = '${{ steps.locate.outputs.exe }}'
           $p = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
           "Native diagnostic exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\native-diagnose.txt
-          if ($p.ExitCode -ne 0) { throw "Native VELTRIX launcher failed in --diagnose with exit code $($p.ExitCode)" }
+          if ($p.ExitCode -ne 0) {
+            Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue |
+              Where-Object { $_.Message -match 'VELTRIX|java|jvm' -or $_.ProviderName -match 'Application Error' } |
+              Select-Object TimeCreated,ProviderName,Id,LevelDisplayName,Message |
+              Format-List | Out-String -Width 4096 | Set-Content diagnostic\windows-events-diagnose.txt
+            throw "Native VELTRIX launcher failed in --diagnose with exit code $($p.ExitCode)"
+          }
 
       - name: Smoke test installed GUI startup
         shell: powershell
