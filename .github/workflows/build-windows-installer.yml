@@ -132,8 +132,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $tag = 'v0.8.0'
           $asset = 'dist\VELTRIX-Setup-0.8.0.exe'
+          $savedPreference = $ErrorActionPreference
+          $ErrorActionPreference = 'SilentlyContinue'
           gh release view $tag *> $null
-          if ($LASTEXITCODE -eq 0) {
+          $releaseExists = ($LASTEXITCODE -eq 0)
+          $ErrorActionPreference = $savedPreference
+
+          if ($releaseExists) {
             gh release upload $tag $asset --clobber
           } else {
             gh release create $tag $asset --target "${{ github.sha }}" --title 'VELTRIX Client 0.8.0' --notes 'Windows installer for VELTRIX Client 0.8.0. Java 21 is bundled. Includes desktop shortcut, Start Menu entry and Windows uninstall support.'
