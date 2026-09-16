@@ -27,8 +27,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Build static site
-        run: python3 scripts/build-site.py
+      - name: Test and build static site
+        run: bash tests/github_pages_domain_contract.sh
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
