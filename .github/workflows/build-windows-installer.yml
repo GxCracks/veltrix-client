@@ -78,7 +78,6 @@ jobs:
           $target = 'build\input\VELTRIX-Launcher-0.8.2.jar'
           Copy-Item -LiteralPath $base -Destination $target -Force
 
-          # Rebuild the already released and verified 0.8.1 functionality first.
           $parts081 = @(
             '.github\installer\veltrix-0.8.1.patch.b64.00.00',
             '.github\installer\veltrix-0.8.1.patch.b64.00.01',
@@ -107,8 +106,6 @@ jobs:
           jar --update --file $target -C build\patch081 .
           if ($LASTEXITCODE -ne 0) { throw 'Failed to apply the known-good 0.8.1 patch.' }
 
-          # Apply only the validated 0.8.2 startup-resilience patch. This replaces
-          # the previous corrupt 0.8.2 patch archive which failed before packaging.
           $startupB64 = (Get-Content '.github\installer\veltrix-startup-debug-class.b64' -Raw).Trim()
           $startupZip = 'build\veltrix-0.8.2-startup-fix.zip'
           [IO.File]::WriteAllBytes($startupZip, [Convert]::FromBase64String($startupB64))
@@ -163,7 +160,7 @@ jobs:
                   System.out.println(config.loadWarning());
               }
           }
-          '@ | Set-Content -LiteralPath build\BadConfigRegression.java -Encoding utf8
+          '@ | Set-Content -LiteralPath build\BadConfigRegression.java -Encoding ascii
 
           javac -cp $jar -d build build\BadConfigRegression.java
           if ($LASTEXITCODE -ne 0) { throw 'Could not compile corrupt-config regression test.' }
@@ -238,8 +235,6 @@ jobs:
           $diag = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
           if ($diag.ExitCode -ne 0) { throw "Installed VELTRIX diagnostic failed with exit code $($diag.ExitCode)" }
 
-          # Reproduce the persisted-settings failure that can make javaw apps look
-          # like they do nothing: a malformed launcher.properties from an old install.
           $veltrixHome = Join-Path $env:USERPROFILE '.veltrix'
           $logs = Join-Path $veltrixHome 'logs'
           New-Item -ItemType Directory -Force -Path $veltrixHome | Out-Null
