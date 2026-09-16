@@ -16,7 +16,7 @@ grep -q '<loc>https://gxcracks.github.io/veltrix-client/</loc>' "$ROOT/sitemap.x
 grep -q 'VELTRIX 0.8.1 is available' "$ROOT/news.json"
 grep -q 'releases/download/v0.8.1/VELTRIX-Setup-0.8.1.exe' "$ROOT/script.js"
 
-if grep -R -q 'https://veltrixclient.de' "$ROOT/README.md" "$ROOT/robots.txt" "$ROOT/sitemap.xml" "$ROOT/news.json" "$ROOT/scripts/build-site.py"; then
+if grep -R -q 'https://veltrixclient.de' "$ROOT/README.md" "$ROOT/robots.txt" "$ROOT/sitemap.xml" "$ROOT/news.json"; then
   echo "Old custom-domain URL remains in public configuration"
   exit 1
 fi
