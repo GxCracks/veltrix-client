@@ -19,6 +19,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Java 21 for diagnostic capture
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Download released 0.8.1 installer
         shell: powershell
         env:
@@ -71,6 +77,27 @@ jobs:
           if (-not (Test-Path $jvm)) { throw "Bundled JVM missing: $jvm" }
           "Runtime module image: OK`nBundled jvm.dll: OK" | Set-Content diagnostic\runtime-package.txt
 
+      - name: Run installed JAR with console Java and capture startup exception
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = '${{ steps.locate.outputs.root }}'
+          $jar = Join-Path $root 'app\VELTRIX-Launcher-0.8.1.jar'
+          if (-not (Test-Path $jar)) { throw "Installed launcher JAR missing: $jar" }
+          $java = (Get-Command java.exe).Source
+          $stdout = Join-Path (Get-Location) 'diagnostic\jar-stdout.txt'
+          $stderr = Join-Path (Get-Location) 'diagnostic\jar-stderr.txt'
+          $p = Start-Process -FilePath $java -ArgumentList @('-cp', ('"' + $jar + '"'), 'dev.veltrix.launcher.VeltrixLauncher') -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
+          Start-Sleep -Seconds 10
+          if ($p.HasExited) {
+            "Direct JAR exited during startup. Exit code: $($p.ExitCode)" | Set-Content diagnostic\jar-smoke.txt
+            Write-Host '--- Captured stderr ---'
+            if (Test-Path $stderr) { Get-Content $stderr }
+          } else {
+            "Direct JAR remained alive for 10 seconds. PID: $($p.Id)" | Set-Content diagnostic\jar-smoke.txt
+            Stop-Process -Id $p.Id -Force
+          }
+
       - name: Run native launcher diagnostic mode
         shell: powershell
         run: |
@@ -78,13 +105,7 @@ jobs:
           $exe = '${{ steps.locate.outputs.exe }}'
           $p = Start-Process -FilePath $exe -ArgumentList '--diagnose' -Wait -PassThru
           "Native diagnostic exit code: $($p.ExitCode)" | Tee-Object -FilePath diagnostic\native-diagnose.txt
-          if ($p.ExitCode -ne 0) {
-            Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue |
-              Where-Object { $_.Message -match 'VELTRIX|java|jvm' -or $_.ProviderName -match 'Application Error' } |
-              Select-Object TimeCreated,ProviderName,Id,LevelDisplayName,Message |
-              Format-List | Out-String -Width 4096 | Set-Content diagnostic\windows-events-diagnose.txt
-            throw "Native VELTRIX launcher failed in --diagnose with exit code $($p.ExitCode)"
-          }
+          if ($p.ExitCode -ne 0) { throw "Native VELTRIX launcher failed in --diagnose with exit code $($p.ExitCode)" }
 
       - name: Smoke test installed GUI startup
         shell: powershell
