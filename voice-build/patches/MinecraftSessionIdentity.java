@@ -28,7 +28,7 @@ public final class MinecraftSessionIdentity implements VoiceSessionIdentity {
         return CompletableFuture.runAsync(() -> {
             try {
                 User user = minecraft.getUser();
-                MinecraftSessionService service = minecraft.getMinecraftSessionService();
+                MinecraftSessionService service = minecraft.services().sessionService();
                 service.joinServer(user.getProfileId(), user.getAccessToken(), hash);
             } catch (Exception e) {
                 throw new CompletionException(e);
