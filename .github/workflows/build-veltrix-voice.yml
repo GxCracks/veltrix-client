@@ -1,0 +1,55 @@
+name: Build VELTRIX Voice
+
+on:
+  push:
+    branches:
+      - build/veltrix-voice-0.1.0-alpha
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Reconstruct source
+        shell: bash
+        run: |
+          mkdir -p voice-src
+          cat voice-build/chunk-00.b64 voice-build/chunk-01.b64 voice-build/chunk-02.b64 voice-build/chunk-03.b64 | base64 --decode > /tmp/veltrix-voice.tar.xz
+          tar -xJf /tmp/veltrix-voice.tar.xz -C voice-src
+          test -f voice-src/settings.gradle.kts
+          test -f voice-src/veltrix-voice-fabric/src/main/resources/fabric.mod.json
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle 9.2.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.1'
+
+      - name: Build Fabric mod
+        working-directory: voice-src
+        run: gradle :veltrix-voice-fabric:build --stacktrace --no-daemon
+
+      - name: Show outputs
+        if: always()
+        shell: bash
+        run: find voice-src -path '*/build/libs/*' -type f -maxdepth 6 -print || true
+
+      - name: Upload Fabric JARs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VELTRIX-Voice-0.1.0-alpha
+          if-no-files-found: error
+          path: |
+            voice-src/veltrix-voice-fabric/build/libs/*.jar
+            !voice-src/veltrix-voice-fabric/build/libs/*-sources.jar
