@@ -54,4 +54,56 @@
   };
   addEventListener('scroll', setActive, {passive:true});
   setActive();
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reveals = document.querySelectorAll('.reveal');
+  if (!reducedMotion && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold: 0.12});
+    reveals.forEach(el => observer.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('visible'));
+  }
+
+  const hero = document.querySelector('.hero');
+  if (hero && !reducedMotion) {
+    hero.addEventListener('pointermove', event => {
+      const rect = hero.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width - 0.5) * -10;
+      const y = ((event.clientY - rect.top) / rect.height - 0.5) * -6;
+      hero.style.setProperty('--hero-x', `${x}px`);
+      hero.style.setProperty('--hero-y', `${y}px`);
+    });
+    hero.addEventListener('pointerleave', () => {
+      hero.style.setProperty('--hero-x', '0px');
+      hero.style.setProperty('--hero-y', '0px');
+    });
+  }
+
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  const showToast = message => {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  };
+
+  document.querySelectorAll('.store-cards article').forEach(card => {
+    const activate = () => showToast('VELTRIX Store preview — checkout is coming soon.');
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        activate();
+      }
+    });
+  });
 })();
