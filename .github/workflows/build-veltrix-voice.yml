@@ -21,6 +21,7 @@ jobs:
           mkdir -p voice-src
           cat voice-build/chunk-00.b64 voice-build/chunk-01.b64 voice-build/chunk-02.b64 voice-build/chunk-03.b64 | base64 --decode > /tmp/veltrix-voice.tar.xz
           tar -xJf /tmp/veltrix-voice.tar.xz -C voice-src
+          cp voice-build/patches/veltrix-voice-fabric.build.gradle.kts voice-src/veltrix-voice-fabric/build.gradle.kts
           test -f voice-src/settings.gradle.kts
           test -f voice-src/veltrix-voice-fabric/src/main/resources/fabric.mod.json
 
