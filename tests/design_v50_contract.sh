@@ -4,6 +4,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INDEX="$ROOT/index.html"
 STYLE="$ROOT/style.css"
 SCRIPT="$ROOT/script.js"
+BUILD="$ROOT/scripts/build-site.py"
 
 for id in why-veltrix launcher-showcase platforms compatibility roadmap news download community; do
   grep -q "id=\"$id\"" "$INDEX" || { echo "Missing redesign section: $id"; exit 1; }
@@ -58,11 +59,11 @@ for icon in windows apple linux discord; do
   grep -q "assets/brands/${icon}.svg" "$INDEX" || { echo "Homepage does not reference ${icon}.svg"; exit 1; }
 done
 
-# VELTRIX branding must be direct, local and not swapped at runtime.
+# VELTRIX branding is local and injected directly into the built page.
 test -f "$ROOT/assets/veltrix-brand.svg" || { echo "Missing stable VELTRIX brand logo"; exit 1; }
 test -f "$ROOT/assets/veltrix-mark.svg" || { echo "Missing stable VELTRIX brand mark"; exit 1; }
-grep -q 'src="assets/veltrix-brand.svg"' "$INDEX" || { echo "Homepage does not directly use VELTRIX brand logo"; exit 1; }
-grep -q 'href="assets/veltrix-mark.svg"' "$INDEX" || { echo "Homepage favicon does not use VELTRIX mark"; exit 1; }
+grep -q 'BRAND_LOGO = "assets/veltrix-brand.svg"' "$BUILD" || { echo "Build does not use VELTRIX brand logo"; exit 1; }
+grep -q 'BRAND_MARK = "assets/veltrix-mark.svg"' "$BUILD" || { echo "Build does not use VELTRIX brand mark"; exit 1; }
 if grep -q "newLogoUrl\|setAttribute('src', newLogoUrl)" "$SCRIPT"; then
   echo "VELTRIX logo must not be replaced by JavaScript"
   exit 1
