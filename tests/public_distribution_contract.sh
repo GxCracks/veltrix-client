@@ -30,7 +30,7 @@ with zipfile.ZipFile(zp) as z:
 print("Public package contents: PASS")
 PY
 
-grep -q 'releases/download/v0.8.0/VELTRIX-Setup-0.8.0.exe' "$ROOT/index.html"
+grep -q 'releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe' "$ROOT/index.html"
 if grep -q 'href="downloads/VELTRIX-Client-0.8.0-Windows.zip"' "$ROOT/index.html"; then
   echo "Homepage must not expose the ZIP as the primary Windows download"
   exit 1
