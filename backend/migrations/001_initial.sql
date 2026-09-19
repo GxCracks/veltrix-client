@@ -1,0 +1,136 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  veltrix_user_id TEXT NOT NULL UNIQUE,
+  minecraft_uuid TEXT NOT NULL UNIQUE,
+  minecraft_username VARCHAR(16) NOT NULL,
+  role TEXT NOT NULL DEFAULT 'USER' CHECK (role IN ('USER','MODERATOR','ADMIN','OWNER')),
+  member_status TEXT NOT NULL DEFAULT 'Member',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS users_minecraft_username_lower_idx ON users (LOWER(minecraft_username));
+
+CREATE TABLE IF NOT EXISTS cosmetics (
+  cosmetic_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  categories TEXT[] NOT NULL DEFAULT '{}',
+  slot TEXT NOT NULL,
+  rarity TEXT NOT NULL CHECK (rarity IN ('COMMON','RARE','EPIC','LEGENDARY','MYTHIC','LIMITED')),
+  price_cents INTEGER NOT NULL DEFAULT 0 CHECK (price_cents >= 0),
+  currency CHAR(3) NOT NULL DEFAULT 'EUR',
+  preview_image TEXT,
+  model_id TEXT,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  purchasable BOOLEAN NOT NULL DEFAULT FALSE,
+  limited BOOLEAN NOT NULL DEFAULT FALSE,
+  featured BOOLEAN NOT NULL DEFAULT FALSE,
+  release_date DATE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_cosmetics (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  cosmetic_id TEXT NOT NULL REFERENCES cosmetics(cosmetic_id) ON DELETE CASCADE,
+  source TEXT NOT NULL CHECK (source IN ('purchase','admin_grant','beta_reward','promo')),
+  purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  equipped BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, cosmetic_id)
+);
+
+CREATE TABLE IF NOT EXISTS client_sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  minecraft_uuid TEXT NOT NULL,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  revoked_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS client_sessions_user_idx ON client_sessions(user_id);
+
+CREATE TABLE IF NOT EXISTS web_login_requests (
+  id TEXT PRIMARY KEY,
+  verification_code_hash CHAR(64) NOT NULL UNIQUE,
+  minecraft_uuid TEXT NOT NULL,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','denied','expired')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  approved_at TIMESTAMPTZ,
+  denied_at TIMESTAMPTZ,
+  consumed_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS web_login_pending_idx ON web_login_requests(user_id, status, expires_at);
+
+CREATE TABLE IF NOT EXISTS web_sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  csrf_hash CHAR(64) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  revoked_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS web_sessions_user_idx ON web_sessions(user_id);
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  provider TEXT NOT NULL,
+  provider_reference TEXT,
+  amount_cents INTEGER NOT NULL DEFAULT 0,
+  currency CHAR(3) NOT NULL DEFAULT 'EUR',
+  status TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS admin_audit (
+  id TEXT PRIMARY KEY,
+  actor_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  action TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id TEXT,
+  details JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO cosmetics (
+  cosmetic_id, name, description, categories, slot, rarity, price_cents, currency,
+  preview_image, model_id, enabled, purchasable, limited, featured
+) VALUES (
+  'veltrix_dragon',
+  'VELTRIX Dragon',
+  'A cute little Veltrix Dragon that sits on your shoulder and accompanies you throughout Minecraft.',
+  ARRAY['Pets','Shoulder Cosmetics'],
+  'shoulder',
+  'LEGENDARY',
+  499,
+  'EUR',
+  'assets/cosmetics/veltrix-dragon.svg',
+  'veltrix_dragon',
+  TRUE,
+  FALSE,
+  FALSE,
+  TRUE
+) ON CONFLICT (cosmetic_id) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  categories = EXCLUDED.categories,
+  slot = EXCLUDED.slot,
+  rarity = EXCLUDED.rarity,
+  preview_image = EXCLUDED.preview_image,
+  model_id = EXCLUDED.model_id,
+  enabled = EXCLUDED.enabled,
+  purchasable = FALSE,
+  featured = TRUE,
+  updated_at = NOW();
+
+COMMIT;
