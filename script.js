@@ -1,7 +1,7 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
 
-  document.querySelectorAll('.hero-download,.mini-platform.windows,.platform-action').forEach(link => {
+  document.querySelectorAll('.header-download,.hero-primary,.platform-windows a,.download-panel a[href*="VELTRIX-Setup-"]').forEach(link => {
     link.setAttribute('href', windowsInstallerUrl);
   });
 
@@ -65,7 +65,7 @@
           observer.unobserve(entry.target);
         }
       });
-    }, {threshold: 0.12});
+    }, {threshold: 0.1});
     reveals.forEach(el => observer.observe(el));
   } else {
     reveals.forEach(el => el.classList.add('visible'));
@@ -75,8 +75,8 @@
   if (hero && !reducedMotion) {
     hero.addEventListener('pointermove', event => {
       const rect = hero.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width - 0.5) * -10;
-      const y = ((event.clientY - rect.top) / rect.height - 0.5) * -6;
+      const x = ((event.clientX - rect.left) / rect.width - 0.5) * -6;
+      const y = ((event.clientY - rect.top) / rect.height - 0.5) * -4;
       hero.style.setProperty('--hero-x', `${x}px`);
       hero.style.setProperty('--hero-y', `${y}px`);
     });
@@ -96,8 +96,8 @@
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   };
 
-  document.querySelectorAll('.store-cards article').forEach(card => {
-    const activate = () => showToast('VELTRIX Store preview — checkout is coming soon.');
+  document.querySelectorAll('.store-preview-card').forEach(card => {
+    const activate = () => showToast('VELTRIX Store preview — checkout is not live yet.');
     card.addEventListener('click', activate);
     card.addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ' ') {
