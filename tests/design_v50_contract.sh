@@ -58,13 +58,11 @@ for icon in windows apple linux discord; do
   grep -q "assets/brands/${icon}.svg" "$INDEX" || { echo "Homepage does not reference ${icon}.svg"; exit 1; }
 done
 
-NEW_LOGO="$ROOT/assets/veltrix-logo-user.svg"
-test -f "$NEW_LOGO" || { echo "Missing new VELTRIX logo asset"; exit 1; }
-grep -q 'src="assets/veltrix-logo-user.svg"' "$INDEX" || { echo "Homepage does not directly reference the new VELTRIX logo"; exit 1; }
-if grep -q "newLogoUrl\|setAttribute('src', newLogoUrl)" "$SCRIPT"; then
-  echo "Logo must not be swapped at runtime by JavaScript"
-  exit 1
-fi
+NEW_LOGO="$ROOT/assets/veltrix-logo-user.png"
+test -f "$NEW_LOGO" || { echo "Missing real VELTRIX PNG logo asset"; exit 1; }
+grep -q "const newLogoUrl = 'assets/veltrix-logo-user.png'" "$SCRIPT" || { echo "Runtime does not load the real VELTRIX PNG logo"; exit 1; }
+grep -q "document.querySelector('.brand img')" "$SCRIPT" || { echo "Header logo replacement missing"; exit 1; }
+grep -q "document.querySelector('.footer-brand img')" "$SCRIPT" || { echo "Footer logo replacement missing"; exit 1; }
 
 # Coming-soon platform controls must not be downloadable links.
 if grep -Eq '<a[^>]+(macOS|Linux)[^>]*>.*Coming Soon|<a[^>]+>[^<]*(macOS|Linux)[^<]*Coming Soon' "$INDEX"; then
