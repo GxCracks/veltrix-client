@@ -6,6 +6,8 @@ fail(){ echo "FAIL: $1" >&2; exit 1; }
 [[ -f privacy.html ]] || fail "privacy.html missing"
 [[ -f style.css ]] || fail "style.css missing"
 [[ -f script.js ]] || fail "script.js missing"
+[[ -f cosmetics.html ]] || fail "cosmetics.html missing"
+[[ -f account.html ]] || fail "account.html missing"
 [[ -f assets/veltrix-logo.png ]] || fail "logo missing"
 [[ -f .github/workflows/pages.yml ]] || fail "Pages workflow missing"
 [[ -f PUBLISH-GITHUB.bat ]] || fail "publish helper missing"
