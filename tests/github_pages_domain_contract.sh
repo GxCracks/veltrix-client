@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="https://gxcracks.github.io/veltrix-client/"
 INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
-SUPPORT="https://discord.gg/9qYaVP6jvp"
+SUPPORT="https://discord.gg/5WteV2B68C"
 
 if [[ -e "$ROOT/CNAME" ]]; then
   echo "CNAME must be absent when using the GitHub Pages project URL"
