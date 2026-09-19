@@ -19,7 +19,11 @@ grep -q 'Coming Soon' "$INDEX"
 grep -q 'Available' "$INDEX"
 grep -q 'Testing' "$INDEX"
 grep -q 'Planned' "$INDEX"
-grep -q 'https://discord.gg/5WteV2B68C' "$INDEX"
+grep -q 'https://discord.gg/nzP6Hq2n2M' "$INDEX"
+if grep -q 'https://discord.gg/5WteV2B68C' "$INDEX"; then
+  echo "Old VELTRIX Discord invite remains in homepage"
+  exit 1
+fi
 grep -q 'releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe' "$INDEX"
 
 grep -q 'class="header-download"' "$INDEX"
