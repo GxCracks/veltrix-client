@@ -1,4 +1,5 @@
-export type UserRole='USER'|'MODERATOR'|'ADMIN'|'OWNER';export type LoginStatus='pending'|'approved'|'denied'|'expired';
+export type UserRole='USER'|'MODERATOR'|'ADMIN'|'OWNER';
+export type LoginStatus='pending'|'approved'|'denied'|'expired';
 export type User={id:string;veltrixUserId:string;minecraftUuid:string;minecraftUsername:string;role:UserRole;memberStatus:string;createdAt:Date;updatedAt:Date};
 export type ClientSession={id:string;userId:string;minecraftUuid:string;tokenHash:string;createdAt:Date;expiresAt:Date;lastSeen:Date;revokedAt:Date|null};
 export type WebLoginRequest={id:string;verificationCodeHash:string;codeCiphertext:string;minecraftUuid:string;userId:string;status:LoginStatus;createdAt:Date;expiresAt:Date;approvedAt:Date|null;deniedAt:Date|null;consumedAt:Date|null};
@@ -6,7 +7,7 @@ export type WebSession={id:string;userId:string;tokenHash:string;csrfHash:string
 export type Cosmetic={id:string;name:string;description:string;categories:string[];slot:string;rarity:'COMMON'|'RARE'|'EPIC'|'LEGENDARY'|'MYTHIC'|'LIMITED';priceCents:number;currency:string;preview:string|null;modelId:string|null;enabled:boolean;purchasable:boolean;limited:boolean;featured:boolean;createdAt:Date};
 export type OwnedCosmetic=Cosmetic&{owned:true;equipped:boolean;purchasedAt:Date;source:string};
 export interface VeltrixStore{
- upsertUser(input:Pick<User,'veltrixUserId'|'minecraftUuid'|'minecraftUsername'>):Promise<User>;getUserById(id:string):Promise<User|null>;
+ upsertUser(input:Pick<User,'veltrixUserId'|'minecraftUuid'|'minecraftUsername'>):Promise<User>;getUserById(id:string):Promise<User|null>;findUserByUsername(username:string):Promise<User|null>;
  createClientSession(s:ClientSession):Promise<void>;getClientSessionByHash(h:string):Promise<ClientSession|null>;findActiveClientSessionByUsername(n:string,o:Date,now:Date):Promise<ClientSession|null>;hasActiveClientSession(uid:string,o:Date,now:Date):Promise<boolean>;touchClientSession(id:string,at:Date):Promise<void>;revokeClientSession(id:string,at:Date):Promise<void>;
  expirePendingWebLoginRequests(uid:string,at:Date):Promise<void>;createWebLoginRequest(r:WebLoginRequest):Promise<void>;getWebLoginRequest(id:string):Promise<WebLoginRequest|null>;listPendingWebLoginRequests(uid:string,now:Date):Promise<WebLoginRequest[]>;setWebLoginStatus(id:string,uid:string,s:'approved'|'denied',at:Date):Promise<boolean>;consumeApprovedWebLoginRequest(id:string,at:Date):Promise<WebLoginRequest|null>;
  createWebSession(s:WebSession):Promise<void>;getWebSessionByHash(h:string):Promise<WebSession|null>;updateWebSessionCsrf(id:string,h:string,at:Date):Promise<void>;revokeWebSession(id:string,at:Date):Promise<void>;
