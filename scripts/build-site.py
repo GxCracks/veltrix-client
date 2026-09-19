@@ -21,7 +21,7 @@ PUBLIC_FILES = [
     ".nojekyll",
 ]
 
-INDEX_SEO = f'''  <link rel="canonical" href="{SITE_URL}">\n  <meta property="og:type" content="website">\n  <meta property="og:site_name" content="VELTRIX Client">\n  <meta property="og:title" content="VELTRIX Client — One Client. Many Versions.">\n  <meta property="og:description" content="Independent Minecraft Java launcher project for Windows with version management, Fabric support, news and a native Windows installer.">\n  <meta property="og:url" content="{SITE_URL}">\n  <meta property="og:image" content="{SITE_URL}assets/veltrix-logo-web.webp">\n  <meta name="twitter:card" content="summary_large_image">\n  <meta name="twitter:title" content="VELTRIX Client — One Client. Many Versions.">\n  <meta name="twitter:description" content="Independent Minecraft Java launcher project for Windows.">\n  <meta name="twitter:image" content="{SITE_URL}assets/veltrix-logo-web.webp">\n'''
+INDEX_SEO = f'''  <link rel="canonical" href="{SITE_URL}">\n  <meta property="og:type" content="website">\n  <meta property="og:site_name" content="VELTRIX Client">\n  <meta property="og:title" content="VELTRIX Client — Beta / Early Access">\n  <meta property="og:description" content="VELTRIX Client Beta for Minecraft Java on Windows. Early Access test builds may still contain bugs.">\n  <meta property="og:url" content="{SITE_URL}">\n  <meta property="og:image" content="{SITE_URL}assets/veltrix-logo-web.webp">\n  <meta name="twitter:card" content="summary_large_image">\n  <meta name="twitter:title" content="VELTRIX Client — Beta / Early Access">\n  <meta name="twitter:description" content="VELTRIX Client Beta for Minecraft Java on Windows.">\n  <meta name="twitter:image" content="{SITE_URL}assets/veltrix-logo-web.webp">\n'''
 
 PRIVACY_URL = SITE_URL + "privacy.html"
 PRIVACY_SEO = f'<meta name="description" content="Privacy information for the independent VELTRIX Client project."><link rel="canonical" href="{PRIVACY_URL}"><meta property="og:type" content="website"><meta property="og:title" content="VELTRIX Client — Privacy"><meta property="og:description" content="Privacy information for the independent VELTRIX Client project."><meta property="og:url" content="{PRIVACY_URL}"><meta property="og:image" content="{SITE_URL}assets/veltrix-logo-web.webp">'
@@ -50,15 +50,13 @@ def inject_seo():
     index = OUT / "index.html"
     text = index.read_text(encoding="utf-8")
     if 'rel="canonical"' not in text:
-        title = '  <title>VELTRIX Client — One Client. Many Versions.</title>\n'
-        text = text.replace(title, title + INDEX_SEO, 1)
+        text = text.replace("</head>", INDEX_SEO + "</head>", 1)
     index.write_text(text, encoding="utf-8")
 
     privacy = OUT / "privacy.html"
     text = privacy.read_text(encoding="utf-8")
     if 'rel="canonical"' not in text:
-        title = '<title>VELTRIX Client — Privacy</title>'
-        text = text.replace(title, title + PRIVACY_SEO, 1)
+        text = text.replace("</head>", PRIVACY_SEO + "</head>", 1)
     privacy.write_text(text, encoding="utf-8")
 
 
@@ -83,8 +81,8 @@ def validate():
         raise SystemExit("GitHub Pages privacy canonical metadata missing")
     if WINDOWS_INSTALLER not in index or WINDOWS_INSTALLER not in script:
         raise SystemExit("VELTRIX 0.8.2 Windows installer link missing")
-    if f"VELTRIX Client {CURRENT_VERSION}" not in index:
-        raise SystemExit("VELTRIX 0.8.2 version text missing")
+    if CURRENT_VERSION not in index or "BETA / EARLY ACCESS" not in index:
+        raise SystemExit("VELTRIX 0.8.2 beta version text missing")
     if "https://veltrixclient.de" in index or "https://veltrixclient.de" in privacy:
         raise SystemExit("Old custom-domain metadata remains in deployed pages")
 
