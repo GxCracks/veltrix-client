@@ -18,6 +18,7 @@ PUBLIC_FILES = [
     "style.css",
     "veltrix-extras.css",
     "script.js",
+    "veltrix-config.js",
     "api.js",
     "cosmetics.html",
     "cosmetics.js",
@@ -95,7 +96,7 @@ def validate():
 
     runtime_files = [OUT / name for name in [
         "index.html", "privacy.html", "404.html", "style.css", "veltrix-extras.css",
-        "script.js", "api.js", "cosmetics.html", "cosmetics.js", "account.html", "account.js"
+        "script.js", "veltrix-config.js", "api.js", "cosmetics.html", "cosmetics.js", "account.html", "account.js"
     ]]
     insecure = re.compile(r'(?:href|src)=["\']http://|url\(["\']?http://', re.I)
     for path in runtime_files:
