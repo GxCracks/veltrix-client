@@ -28,6 +28,6 @@ jobs:
         if: ${{ hashFiles('backend/package.json') != '' }}
         working-directory: backend
         run: |
-          npm ci
+          npm install
           npm test
           npm run build
