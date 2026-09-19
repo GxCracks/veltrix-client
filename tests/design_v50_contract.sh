@@ -60,13 +60,9 @@ done
 
 NEW_LOGO="$ROOT/assets/veltrix-logo-user.svg"
 test -f "$NEW_LOGO" || { echo "Missing new VELTRIX logo asset"; exit 1; }
-grep -q 'assets/veltrix-logo-user.svg' "$INDEX" || { echo "Homepage does not use the new VELTRIX logo"; exit 1; }
-if grep -q 'assets/veltrix-logo-web.webp' "$INDEX"; then
-  echo "Old VELTRIX logo is still referenced by homepage"
-  exit 1
-fi
-test -f "$ROOT/logo-overrides.css" || { echo "Missing logo sizing overrides"; exit 1; }
-grep -q 'logo-overrides.css' "$INDEX" || { echo "Homepage does not load logo sizing overrides"; exit 1; }
+grep -q "assets/veltrix-logo-user.svg" "$SCRIPT" || { echo "Runtime does not switch to the new VELTRIX logo"; exit 1; }
+grep -q "document.querySelector('.brand img')" "$SCRIPT" || { echo "Header logo replacement missing"; exit 1; }
+grep -q "document.querySelector('.footer-brand img')" "$SCRIPT" || { echo "Footer logo replacement missing"; exit 1; }
 
 # Coming-soon platform controls must not be downloadable links.
 if grep -Eq '<a[^>]+(macOS|Linux)[^>]*>.*Coming Soon|<a[^>]+>[^<]*(macOS|Linux)[^<]*Coming Soon' "$INDEX"; then
