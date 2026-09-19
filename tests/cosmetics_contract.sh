@@ -2,13 +2,16 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-for file in cosmetics.html cosmetics.js account.html account.js api.js; do
+for file in cosmetics.html cosmetics.js account.html account.js api.js veltrix-extras.css; do
   test -f "$ROOT/$file" || { echo "Missing $file"; exit 1; }
 done
 
-grep -q 'id="veltrix-intro"' "$ROOT/index.html"
+grep -q 'veltrix-intro' "$ROOT/script.js"
 grep -q 'veltrix_intro_seen' "$ROOT/script.js"
-grep -q 'href="cosmetics.html"' "$ROOT/index.html"
+grep -q 'cosmetics.html' "$ROOT/script.js"
+grep -q 'aria-label="Enter VELTRIX website"' "$ROOT/script.js"
+grep -q 'sessionStorage.setItem(INTRO_KEY' "$ROOT/script.js"
+grep -q 'prefers-reduced-motion' "$ROOT/veltrix-extras.css"
 grep -q 'VELTRIX COSMETICS' "$ROOT/cosmetics.html"
 grep -q 'veltrix_dragon' "$ROOT/cosmetics.js"
 grep -q 'COMING SOON' "$ROOT/cosmetics.html"
