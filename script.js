@@ -1,12 +1,53 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
+  const INTRO_KEY = 'veltrix_intro_seen';
+
+  if (!document.querySelector('link[href="veltrix-extras.css"]')) {
+    const extras = document.createElement('link');
+    extras.rel = 'stylesheet';
+    extras.href = 'veltrix-extras.css?v=1';
+    document.head.appendChild(extras);
+  }
+
+  const nav = document.getElementById('main-nav');
+  if (nav && !nav.querySelector('a[href="cosmetics.html"]')) {
+    const cosmeticsLink = document.createElement('a');
+    cosmeticsLink.href = 'cosmetics.html';
+    cosmeticsLink.textContent = 'Cosmetics';
+    const newsLink = nav.querySelector('a[href="#news"]');
+    nav.insertBefore(cosmeticsLink, newsLink || null);
+  }
+
+  if (sessionStorage.getItem(INTRO_KEY) !== 'true') {
+    const intro = document.createElement('div');
+    intro.id = 'veltrix-intro';
+    intro.className = 'veltrix-intro';
+    intro.setAttribute('role', 'button');
+    intro.setAttribute('tabindex', '0');
+    intro.setAttribute('aria-label', 'Enter VELTRIX website');
+    intro.innerHTML = '<div class="veltrix-intro-glow" aria-hidden="true"></div><img src="assets/veltrix-brand.svg" alt="VELTRIX Client"><span>Click to enter</span>';
+    document.body.prepend(intro);
+
+    const closeIntro = () => {
+      if (!intro.isConnected || intro.classList.contains('leaving')) return;
+      sessionStorage.setItem(INTRO_KEY, 'true');
+      intro.classList.add('leaving');
+      setTimeout(() => intro.remove(), 650);
+    };
+    intro.addEventListener('click', closeIntro);
+    intro.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        closeIntro();
+      }
+    });
+  }
 
   document.querySelectorAll('.header-download,.hero-primary,.platform-windows a,.download-panel a[href*="VELTRIX-Setup-"]').forEach(link => {
     link.setAttribute('href', windowsInstallerUrl);
   });
 
   const toggle = document.querySelector('.nav-toggle');
-  const nav = document.getElementById('main-nav');
   if (toggle && nav) {
     toggle.addEventListener('click', () => {
       const open = nav.classList.toggle('open');
