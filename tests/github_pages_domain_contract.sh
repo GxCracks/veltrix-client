@@ -3,7 +3,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SITE="https://gxcracks.github.io/veltrix-client/"
 INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
-SUPPORT="https://discord.gg/5WteV2B68C"
+SUPPORT="https://discord.gg/nzP6Hq2n2M"
+OLD_SUPPORT="https://discord.gg/5WteV2B68C"
 
 bash "$ROOT/tests/design_v50_contract.sh"
 bash "$ROOT/tests/site_contract.sh"
@@ -28,6 +29,10 @@ fi
 
 # Support must go directly to the official VELTRIX Discord, never back to GitHub or an internal placeholder page.
 grep -q "$SUPPORT" "$ROOT/index.html"
+if grep -q "$OLD_SUPPORT" "$ROOT/index.html"; then
+  echo "Old VELTRIX Discord invite remains in homepage"
+  exit 1
+fi
 if grep -q 'href="support.html"' "$ROOT/index.html"; then
   echo "Support still points to support.html instead of Discord"
   exit 1
@@ -57,6 +62,10 @@ grep -q 'https://gxcracks.github.io/veltrix-client/privacy.html' "$ROOT/_site/pr
 grep -q "$INSTALLER" "$ROOT/_site/index.html"
 grep -q "$INSTALLER" "$ROOT/_site/script.js"
 grep -q "$SUPPORT" "$ROOT/_site/index.html"
+if grep -q "$OLD_SUPPORT" "$ROOT/_site/index.html"; then
+  echo "Old VELTRIX Discord invite remains in built homepage"
+  exit 1
+fi
 grep -q 'BETA / EARLY ACCESS — v0.8.2' "$ROOT/_site/index.html"
 grep -q 'id="platforms"' "$ROOT/_site/index.html"
 grep -q 'id="roadmap"' "$ROOT/_site/index.html"
