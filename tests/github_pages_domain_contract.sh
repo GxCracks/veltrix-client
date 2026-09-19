@@ -11,6 +11,7 @@ MARK="assets/veltrix-mark.svg"
 bash "$ROOT/tests/design_v50_contract.sh"
 bash "$ROOT/tests/site_contract.sh"
 bash "$ROOT/tests/public_distribution_contract.sh"
+bash "$ROOT/tests/cosmetics_contract.sh"
 
 if [[ -e "$ROOT/CNAME" ]]; then
   echo "CNAME must be absent when using the GitHub Pages project URL"
@@ -28,7 +29,6 @@ if grep -Eq 'releases/download/v0\.8\.[01]/VELTRIX-Setup-0\.8\.[01]\.exe' "$ROOT
   exit 1
 fi
 
-# Branding assets must exist locally. JavaScript must not swap the logo at runtime.
 test -f "$ROOT/$BRAND" || { echo "VELTRIX brand logo missing"; exit 1; }
 test -f "$ROOT/$MARK" || { echo "VELTRIX brand mark missing"; exit 1; }
 if grep -q "newLogoUrl\|setAttribute('src', newLogoUrl)" "$ROOT/script.js"; then
@@ -36,7 +36,6 @@ if grep -q "newLogoUrl\|setAttribute('src', newLogoUrl)" "$ROOT/script.js"; then
   exit 1
 fi
 
-# Support must go directly to the official VELTRIX Discord.
 grep -q "$SUPPORT" "$ROOT/index.html"
 if grep -q "$OLD_SUPPORT" "$ROOT/index.html"; then
   echo "Old VELTRIX Discord invite remains in homepage"
@@ -64,6 +63,10 @@ fi
 
 python3 "$ROOT/scripts/build-site.py"
 
+for file in cosmetics.html cosmetics.js account.html account.js api.js; do
+  test -f "$ROOT/_site/$file" || { echo "Built site missing $file"; exit 1; }
+done
+
 test ! -e "$ROOT/_site/CNAME"
 grep -q '<link rel="canonical" href="https://gxcracks.github.io/veltrix-client/">' "$ROOT/_site/index.html"
 grep -q 'https://gxcracks.github.io/veltrix-client/privacy.html' "$ROOT/_site/privacy.html"
@@ -80,7 +83,6 @@ grep -q 'id="roadmap"' "$ROOT/_site/index.html"
 grep -q 'id="community"' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
 
-# Final Pages output must use the new direct brand assets and cache-busted CSS/JS.
 test -f "$ROOT/_site/$BRAND" || { echo "Built site missing VELTRIX brand logo"; exit 1; }
 test -f "$ROOT/_site/$MARK" || { echo "Built site missing VELTRIX brand mark"; exit 1; }
 grep -q 'src="assets/veltrix-brand.svg"' "$ROOT/_site/index.html" || { echo "Built homepage does not use VELTRIX brand logo"; exit 1; }
