@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="title desc">
+  <title id="title">VELTRIX Client</title>
+  <desc id="desc">Metallic VELTRIX Client logo with cyan and violet neon accents.</desc>
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f6f8"/>
+      <stop offset="0.22" stop-color="#aeb5bd"/>
+      <stop offset="0.55" stop-color="#343a42"/>
+      <stop offset="0.82" stop-color="#777f88"/>
+      <stop offset="1" stop-color="#1a1e24"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00d9ff"/>
+      <stop offset="0.48" stop-color="#4dbbff"/>
+      <stop offset="0.52" stop-color="#8a6bff"/>
+      <stop offset="1" stop-color="#b51cff"/>
+    </linearGradient>
+    <linearGradient id="darkMetal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#252b32"/>
+      <stop offset="0.5" stop-color="#07090c"/>
+      <stop offset="1" stop-color="#313740"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g transform="translate(355 10)">
+    <path d="M0 8h70l55 82L180 8h70L125 195z" fill="none" stroke="url(#neon)" stroke-width="18" opacity=".35" filter="url(#glow)"/>
+    <path d="M0 8h70l55 82L180 8h70L125 195z" fill="url(#darkMetal)" stroke="url(#metal)" stroke-width="6" stroke-linejoin="miter"/>
+    <path d="M15 18h47l63 94 63-94h47l-110 160z" fill="none" stroke="url(#neon)" stroke-width="7" filter="url(#softGlow)"/>
+    <path d="M4 12h58l18 27H24z" fill="url(#metal)" opacity=".95"/>
+    <path d="M188 12h58l-20 27h-56z" fill="url(#metal)" opacity=".95"/>
+  </g>
+
+  <g aria-hidden="true">
+    <path d="M84 223h56l36 55 36-55h56l-92 92z" fill="url(#darkMetal)" stroke="#13dfff" stroke-width="4"/>
+    <path d="M84 223h56l36 55" fill="none" stroke="#13dfff" stroke-width="8" opacity=".7" filter="url(#softGlow)"/>
+    <path d="M212 223h56l-92 92" fill="none" stroke="#7c4dff" stroke-width="8" opacity=".35"/>
+  </g>
+
+  <text x="302" y="283" fill="url(#metal)" stroke="#080a0d" stroke-width="2" paint-order="stroke" font-family="Arial Black,Segoe UI Black,Arial,sans-serif" font-size="86" font-weight="900" letter-spacing="-5">VELTRIX</text>
+  <path d="M304 296H430" stroke="#00d9ff" stroke-width="4" stroke-linecap="round" filter="url(#softGlow)"/>
+  <text x="476" y="304" text-anchor="middle" fill="#d8dde4" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700" letter-spacing="12">CLIENT</text>
+  <path d="M590 296H718" stroke="#a62cff" stroke-width="4" stroke-linecap="round" filter="url(#softGlow)"/>
+</svg>
