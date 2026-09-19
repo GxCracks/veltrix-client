@@ -1,39 +1,9 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
-  const newLogoUrl = 'assets/veltrix-logo-user.png';
 
   document.querySelectorAll('.header-download,.hero-primary,.platform-windows a,.download-panel a[href*="VELTRIX-Setup-"]').forEach(link => {
     link.setAttribute('href', windowsInstallerUrl);
   });
-
-  const headerLogo = document.querySelector('.brand img');
-  if (headerLogo) {
-    headerLogo.setAttribute('src', newLogoUrl);
-    headerLogo.setAttribute('alt', 'VELTRIX Client logo');
-    headerLogo.style.width = '96px';
-    headerLogo.style.height = '56px';
-    headerLogo.style.objectFit = 'contain';
-    headerLogo.style.filter = 'drop-shadow(0 0 16px rgba(34,221,255,.22))';
-
-    const brandText = document.querySelector('.brand span');
-    if (brandText) brandText.style.display = 'none';
-
-    const brand = document.querySelector('.brand');
-    if (brand) {
-      brand.style.minWidth = '120px';
-      brand.style.gap = '0';
-    }
-  }
-
-  const footerLogo = document.querySelector('.footer-brand img');
-  if (footerLogo) {
-    footerLogo.setAttribute('src', newLogoUrl);
-    footerLogo.setAttribute('alt', 'VELTRIX Client logo');
-    footerLogo.style.width = '128px';
-    footerLogo.style.height = '86px';
-    footerLogo.style.objectFit = 'contain';
-    footerLogo.style.filter = 'drop-shadow(0 0 18px rgba(34,221,255,.18))';
-  }
 
   const toggle = document.querySelector('.nav-toggle');
   const nav = document.getElementById('main-nav');
