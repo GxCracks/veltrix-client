@@ -6,6 +6,8 @@ INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/V
 SUPPORT="https://discord.gg/5WteV2B68C"
 
 bash "$ROOT/tests/design_v50_contract.sh"
+bash "$ROOT/tests/site_contract.sh"
+bash "$ROOT/tests/public_distribution_contract.sh"
 
 if [[ -e "$ROOT/CNAME" ]]; then
   echo "CNAME must be absent when using the GitHub Pages project URL"
