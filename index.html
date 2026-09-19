@@ -3,20 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="VELTRIX Client Beta — Early Access Minecraft Java client for Windows. This test version is still in active development and may contain bugs.">
-  <meta name="theme-color" content="#02070c">
+  <meta name="description" content="VELTRIX Client Beta — a clean Minecraft Java client and launcher in active Early Access for Windows, with macOS and Linux support in development.">
+  <meta name="theme-color" content="#06090d">
   <title>VELTRIX Client — Beta / Early Access</title>
   <link rel="icon" href="assets/favicon.png">
-  <link rel="stylesheet" href="style.css?v=11">
-  <style>
-    .brand-icon{width:1em;height:1em;display:inline-block;object-fit:contain;filter:invert(1);opacity:.94;vertical-align:-.12em}
-    .header-platforms .brand-icon,.hero-actions .brand-icon,.platform-action .brand-icon,.platform-coming .brand-icon{width:20px;height:20px;vertical-align:middle}
-    .windows-symbol .brand-icon{width:42px;height:42px}
-    .discord-mark .brand-icon{width:34px;height:34px}
-  </style>
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
-  <div class="page-noise" aria-hidden="true"></div>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
   <header class="site-header" id="top">
     <div class="shell header-inner">
       <a class="brand" href="#top" aria-label="VELTRIX Home">
@@ -25,121 +21,265 @@
       </a>
 
       <button class="nav-toggle" aria-controls="main-nav" aria-expanded="false">MENU</button>
-      <nav class="main-nav" id="main-nav">
+
+      <nav class="main-nav" id="main-nav" aria-label="Primary navigation">
         <a class="active" href="#top">Home</a>
         <a href="#features">Features</a>
+        <a href="#platforms">Platforms</a>
+        <a href="#roadmap">Roadmap</a>
         <a href="#news">News</a>
         <a href="#download">Download</a>
-        <a class="support-link" href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">Support</a>
+        <a href="#community">Support</a>
         <a href="privacy.html">Privacy</a>
       </nav>
 
-      <div class="header-platforms">
-        <a class="mini-platform windows" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"><b><img class="brand-icon" src="assets/brands/windows.svg" alt="" aria-hidden="true"></b><span>Beta v0.8.2</span></a>
-        <span class="mini-platform soon"><b><img class="brand-icon" src="assets/brands/apple.svg" alt="" aria-hidden="true"></b><span>macOS<small>Coming Soon</small></span></span>
-        <span class="mini-platform soon"><b><img class="brand-icon" src="assets/brands/linux.svg" alt="" aria-hidden="true"></b><span>Linux<small>Coming Soon</small></span></span>
-      </div>
+      <a class="header-download" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">
+        <img class="brand-icon" src="assets/brands/windows.svg" alt="" aria-hidden="true">
+        <span>Download Beta</span>
+      </a>
     </div>
   </header>
 
   <main>
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-world" aria-hidden="true"></div>
-      <div class="hero-grid" aria-hidden="true"></div>
-      <div class="hero-vignette" aria-hidden="true"></div>
-      <div class="hero-beam hero-beam-a" aria-hidden="true"></div>
-      <div class="hero-beam hero-beam-b" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
       <div class="shell hero-inner">
         <div class="hero-copy reveal">
-          <div class="release-chip"><span></span> BETA / EARLY ACCESS — v0.8.2</div>
+          <div class="release-chip"><span></span>BETA / EARLY ACCESS — v0.8.2</div>
           <p class="eyebrow">Minecraft Java Edition</p>
           <h1 id="hero-title">ONE CLIENT.<br><span>MANY VERSIONS.</span></h1>
-          <p class="hero-lead">VELTRIX is currently in active Beta / Early Access. This test version may still contain bugs.</p>
+          <p class="hero-lead">VELTRIX is an independent Minecraft Java client and launcher in active Beta. Download the Windows test build now; macOS and Linux are in development.</p>
+
           <div class="hero-actions">
-            <a class="hero-download" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">
-              <b><img class="brand-icon" src="assets/brands/windows.svg" alt="Windows" aria-hidden="true"></b><span><strong>Download Windows Beta</strong><small>v0.8.2 &nbsp; | &nbsp; Test Version &nbsp; | &nbsp; Windows 10/11</small></span><i>→</i>
+            <a class="hero-primary" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">
+              <img class="brand-icon" src="assets/brands/windows.svg" alt="" aria-hidden="true">
+              <span><strong>Download Windows Beta</strong><small>v0.8.2 · Windows 10/11 · Early Access</small></span>
+              <i aria-hidden="true">↓</i>
             </a>
-            <span class="hero-os disabled"><b><img class="brand-icon" src="assets/brands/apple.svg" alt="" aria-hidden="true"></b><span>macOS<small>Coming Soon</small></span></span>
-            <span class="hero-os disabled"><b><img class="brand-icon" src="assets/brands/linux.svg" alt="" aria-hidden="true"></b><span>Linux<small>Coming Soon</small></span></span>
+            <span class="hero-platform disabled" aria-disabled="true">
+              <img class="brand-icon" src="assets/brands/apple.svg" alt="" aria-hidden="true">
+              <span>macOS<small>Coming Soon</small></span>
+            </span>
+            <span class="hero-platform disabled" aria-disabled="true">
+              <img class="brand-icon" src="assets/brands/linux.svg" alt="" aria-hidden="true">
+              <span>Linux<small>Coming Soon</small></span>
+            </span>
           </div>
-          <p class="hero-tagline">SAME GAME. BIGGER POSSIBILITIES.</p>
+
+          <div class="hero-trust" aria-label="VELTRIX beta highlights">
+            <span><b></b>Windows Beta</span>
+            <span><b></b>Microsoft Login Testing</span>
+            <span><b></b>Active Development</span>
+          </div>
         </div>
 
-        <aside class="hero-status reveal" aria-label="VELTRIX highlights">
-          <div class="status-top"><span class="live-dot"></span><strong>VELTRIX BETA</strong><small>EARLY ACCESS</small></div>
-          <div class="status-metric"><span>Launcher</span><strong>0.8.2 BETA</strong></div>
-          <div class="status-metric"><span>Windows</span><strong class="good">TEST BUILD</strong></div>
-          <div class="status-metric"><span>macOS / Linux</span><strong>COMING SOON</strong></div>
-          <a class="discord-mini" href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">Discord Support <span>↗</span></a>
-        </aside>
-
-        <div class="hero-side-copy"><span>EXPLORE</span><span>YOUR WORLD</span><strong>DIFFERENTLY.</strong></div>
+        <div class="hero-product reveal" aria-label="VELTRIX launcher preview">
+          <div class="hero-product-top"><span>VELTRIX CLIENT</span><small>0.8.2 BETA</small></div>
+          <img src="assets/launcher-live.svg" alt="VELTRIX launcher interface preview">
+          <div class="hero-product-meta"><span>Windows 10/11</span><span>Early Access</span></div>
+        </div>
       </div>
     </section>
 
-    <section class="feature-band shell" id="features">
-      <article class="reveal"><span class="feature-icon">ϟ</span><div><h2>Performance</h2><p>Optimized for a smoother, faster Minecraft experience.</p></div></article>
-      <article class="reveal"><span class="feature-icon">✧</span><div><h2>Design</h2><p>A clean, modern interface built for players.</p></div></article>
-      <article class="reveal"><span class="feature-icon">◇</span><div><h2>Freedom</h2><p>Play your way. Add mods, customize, explore.</p></div></article>
-      <article class="reveal"><span class="feature-icon">▦</span><div><h2>Minecraft Version Support</h2><p>Play any version from classic to latest.</p></div></article>
-      <article class="reveal"><span class="feature-icon">◎</span><div><h2>Official Microsoft Login</h2><p>Official OAuth authentication flow.</p></div></article>
-      <article class="reveal"><span class="feature-icon">⌁</span><div><h2>Launcher-Core</h2><p>All in one client. Launch, mod, and play.</p></div></article>
-    </section>
+    <section class="section features-section" id="features">
+      <div class="shell" id="why-veltrix">
+        <div class="section-heading reveal">
+          <span class="section-kicker">Built around the player</span>
+          <h2>Why VELTRIX</h2>
+          <p>A focused launcher experience with less clutter, clear status information and room to grow with the community.</p>
+        </div>
 
-    <section class="dashboard shell">
-      <div class="launcher-panel reveal">
-        <div class="panel-title"><span>VELTRIX CLIENT</span><small>MORE THAN JUST A CLIENT.</small><i></i></div>
-        <div class="launcher-preview">
-          <img src="assets/launcher-live.svg" alt="VELTRIX launcher preview">
-          <div class="preview-glow"></div>
-          <div class="preview-badge">BETA PREVIEW</div>
-        </div>
-        <div class="store-strip" id="store">
-          <div><small>FEATURED STORE</small><strong>Enhance your experience with premium cosmetics, ranks and more.</strong></div>
-          <a href="#store">VIEW ALL →</a>
-        </div>
-        <div class="store-cards">
-          <article tabindex="0"><span class="store-art cape">V</span><b>VELTRIX CAPE</b><small>ELITE EDITION</small><strong>$9.99</strong><em>PREVIEW</em></article>
-          <article tabindex="0"><span class="store-art wings">✦</span><b>ANGEL WINGS</b><small>PREMIUM COSMETIC</small><strong>$6.99</strong><em>PREVIEW</em></article>
-          <article tabindex="0"><span class="store-art shadow">✧</span><b>SHADOW WINGS</b><small>OBSIDIAN EDITION</small><strong>$6.99</strong><em>PREVIEW</em></article>
-          <article tabindex="0"><span class="store-art soul">⌁</span><b>SOUL TRAIL</b><small>PARTICLE EFFECT</small><strong>$3.99</strong><em>PREVIEW</em></article>
-          <article tabindex="0"><span class="store-art bundle">V+</span><b>VELTRIX BUNDLE</b><small>COMPLETE COLLECTION</small><strong>$19.99</strong><em>PREVIEW</em></article>
+        <div class="why-grid">
+          <article class="why-card reveal"><div class="card-icon">01</div><h3>Performance</h3><p>Built with a smoother, lighter Minecraft workflow in mind without making unrealistic FPS guarantees.</p></article>
+          <article class="why-card reveal"><div class="card-icon">02</div><h3>Multi-Version Support</h3><p>Launcher-managed Minecraft versions are part of the VELTRIX direction and continue to be tested.</p></article>
+          <article class="why-card reveal"><div class="card-icon">03</div><h3>Modern Launcher</h3><p>A clean dark interface designed to keep launching, managing and updating Minecraft straightforward.</p></article>
+          <article class="why-card reveal"><div class="card-icon">04</div><h3>Microsoft Login</h3><p>VELTRIX uses the official Microsoft OAuth flow. Login integration remains under active Beta testing.</p></article>
+          <article class="why-card reveal"><div class="card-icon">05</div><h3>Mods &amp; Customization</h3><p>Fabric, mods, resource packs and further customization are being integrated conservatively and tested by version.</p></article>
+          <article class="why-card reveal"><div class="card-icon">06</div><h3>Community Driven</h3><p>Feedback, bug reports and feature ideas from testers help shape upcoming VELTRIX updates.</p></article>
         </div>
       </div>
+    </section>
 
-      <div class="news-column reveal" id="news">
-        <div class="section-bar"><div><small>VELTRIX NETWORK</small><h2>LATEST NEWS</h2></div><a href="#news">VIEW ALL NEWS →</a></div>
+    <section class="section showcase-section" id="launcher-showcase">
+      <div class="shell showcase-grid">
+        <div class="showcase-visual reveal">
+          <div class="showcase-window">
+            <div class="window-bar"><span></span><span></span><span></span><small>VELTRIX Launcher</small></div>
+            <img src="assets/launcher-live.svg" alt="Large VELTRIX launcher preview">
+          </div>
+        </div>
+
+        <div class="showcase-copy reveal">
+          <span class="section-kicker">Launcher showcase</span>
+          <h2>Everything important.<br>Without the noise.</h2>
+          <p>VELTRIX keeps the launcher, version management and upcoming client features in one consistent interface. Beta features are labeled honestly so testers know what is ready and what is still being built.</p>
+
+          <ul class="feature-status-list">
+            <li><span>Windows Beta Build</span><strong class="status available">Available</strong></li>
+            <li><span>Version Manager</span><strong class="status testing">Testing</strong></li>
+            <li><span>Fabric Support</span><strong class="status testing">Testing</strong></li>
+            <li><span>Microsoft Login</span><strong class="status testing">Testing</strong></li>
+            <li><span>Friends &amp; Social</span><strong class="status planned">Planned</strong></li>
+            <li><span>Voice Chat &amp; Cosmetics</span><strong class="status planned">Planned</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section platforms-section" id="platforms">
+      <div class="shell">
+        <div class="section-heading reveal">
+          <span class="section-kicker">Supported Platforms</span>
+          <h2>Choose your platform</h2>
+          <p>Windows is available for Beta testing now. Native macOS and Linux builds are planned next.</p>
+        </div>
+
+        <div class="platform-grid">
+          <article class="platform-card platform-windows reveal">
+            <div class="platform-logo"><img src="assets/brands/windows.svg" alt="Windows"></div>
+            <div class="platform-top"><h3>Windows</h3><span class="platform-state available">Beta available</span></div>
+            <p>VELTRIX Beta v0.8.2 for Windows 10/11.</p>
+            <a class="platform-download" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">Download Beta <span>↓</span></a>
+          </article>
+
+          <article class="platform-card platform-macos reveal">
+            <div class="platform-logo"><img src="assets/brands/apple.svg" alt="Apple"></div>
+            <div class="platform-top"><h3>macOS</h3><span class="platform-state planned">Coming Soon</span></div>
+            <p>Native macOS support is in development. No public macOS build is available yet.</p>
+            <span class="platform-disabled" aria-disabled="true">Coming Soon</span>
+          </article>
+
+          <article class="platform-card platform-linux reveal">
+            <div class="platform-logo"><img src="assets/brands/linux.svg" alt="Linux"></div>
+            <div class="platform-top"><h3>Linux</h3><span class="platform-state planned">Coming Soon</span></div>
+            <p>Native Linux support is in development. No public Linux build is available yet.</p>
+            <span class="platform-disabled" aria-disabled="true">Coming Soon</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compatibility-section" id="compatibility">
+      <div class="shell compatibility-shell">
+        <div class="section-heading left reveal">
+          <span class="section-kicker">Version &amp; Mod Support</span>
+          <h2>Built for Minecraft Java</h2>
+          <p>Compatibility is expanded and tested step by step. VELTRIX does not claim universal mod or shader compatibility.</p>
+        </div>
+
+        <div class="compatibility-grid">
+          <article class="compatibility-card reveal"><span>01</span><div><h3>Minecraft Java Edition</h3><p>Core target platform for VELTRIX.</p></div><strong class="status available">Available</strong></article>
+          <article class="compatibility-card reveal"><span>02</span><div><h3>Multi-Version Launcher</h3><p>Version handling is being expanded across releases.</p></div><strong class="status testing">Testing</strong></article>
+          <article class="compatibility-card reveal"><span>03</span><div><h3>Fabric</h3><p>Fabric integration is being validated per supported version.</p></div><strong class="status testing">Testing</strong></article>
+          <article class="compatibility-card reveal"><span>04</span><div><h3>Mods &amp; Resource Packs</h3><p>Management and compatibility work continue during Beta.</p></div><strong class="status testing">Testing</strong></article>
+          <article class="compatibility-card reveal"><span>05</span><div><h3>Modrinth / CurseForge</h3><p>Deeper integrations are part of the planned ecosystem.</p></div><strong class="status planned">Planned</strong></article>
+          <article class="compatibility-card reveal"><span>06</span><div><h3>Shaders</h3><p>Shader management remains part of the planned client roadmap.</p></div><strong class="status planned">Planned</strong></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section roadmap-section" id="roadmap">
+      <div class="shell">
+        <div class="section-heading reveal">
+          <span class="section-kicker">Beta Status</span>
+          <h2>Roadmap, without fake promises</h2>
+          <p>VELTRIX is under active development. Beta features may contain bugs and roadmap items can change as testing progresses.</p>
+        </div>
+
+        <div class="roadmap-grid">
+          <article class="roadmap-item reveal"><div><span>01</span><h3>Windows Beta</h3></div><p>Public v0.8.2 Early Access build.</p><strong class="status available">Available</strong></article>
+          <article class="roadmap-item reveal"><div><span>02</span><h3>Launcher Core</h3></div><p>Core launching and management workflow.</p><strong class="status testing">Testing</strong></article>
+          <article class="roadmap-item reveal"><div><span>03</span><h3>Microsoft Login</h3></div><p>Official OAuth-based authentication integration.</p><strong class="status testing">Testing</strong></article>
+          <article class="roadmap-item reveal"><div><span>04</span><h3>macOS</h3></div><p>Native package and platform integration.</p><strong class="status planned">Planned</strong></article>
+          <article class="roadmap-item reveal"><div><span>05</span><h3>Linux</h3></div><p>Native Linux packages and platform integration.</p><strong class="status planned">Planned</strong></article>
+          <article class="roadmap-item reveal"><div><span>06</span><h3>Voice / Social / Cosmetics</h3></div><p>Community and personalization systems.</p><strong class="status planned">Planned</strong></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section news-section" id="news">
+      <div class="shell">
+        <div class="section-heading reveal">
+          <span class="section-kicker">VELTRIX Network</span>
+          <h2>LATEST NEWS</h2>
+          <p>Updates, Beta changes and development notes.</p>
+        </div>
         <div class="news-grid" id="news-grid">
           <article class="news-card skeleton">Loading news…</article>
         </div>
-
-        <section class="download-card" id="download" data-platform="windows">
-          <div class="download-main">
-            <span class="windows-symbol"><img class="brand-icon" src="assets/brands/windows.svg" alt="Windows"></span>
-            <div><h2>DOWNLOAD VELTRIX BETA</h2><p>Version 0.8.2 Beta &nbsp; | &nbsp; Windows 10/11 &nbsp; | &nbsp; Early Access</p><small>This is an early test build. Features may be incomplete and bugs can occur. Please report problems through VELTRIX Discord Support.</small></div>
-          </div>
-          <a class="platform-action" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"><b><img class="brand-icon" src="assets/brands/windows.svg" alt="" aria-hidden="true"></b> Download Beta for Windows <span>↓</span></a>
-          <div class="platform-coming"><span><b><img class="brand-icon" src="assets/brands/apple.svg" alt="" aria-hidden="true"></b> macOS <small>Coming Soon</small></span><span><b><img class="brand-icon" src="assets/brands/linux.svg" alt="" aria-hidden="true"></b> Linux <small>Coming Soon</small></span></div>
-          <div class="download-checks"><span>✓ Beta / Early Access</span><span>✓ Regular Updates</span><span>✓ Microsoft Login</span><span>✓ Community Support</span></div>
-        </section>
       </div>
     </section>
 
-    <section class="community-strip shell reveal">
-      <div><span class="discord-mark"><img class="brand-icon" src="assets/brands/discord.svg" alt="Discord"></span><div><small>NEED HELP OR FOUND A BUG?</small><h2>Join the VELTRIX Discord</h2><p>Get support, report Beta issues, follow updates and stay connected with the community.</p></div></div>
-      <a href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">OPEN DISCORD <span>↗</span></a>
+    <section class="section store-section" id="store">
+      <div class="shell store-preview reveal">
+        <div class="store-copy">
+          <span class="section-kicker">Cosmetics preview</span>
+          <h2>A look at what can come next.</h2>
+          <p>The VELTRIX store is not presented as a live checkout here. These cards are visual previews for planned cosmetic content.</p>
+        </div>
+        <div class="store-preview-grid">
+          <article class="store-preview-card" tabindex="0"><span>V</span><div><h3>VELTRIX Cape</h3><p>Cosmetic preview</p></div><em>Preview</em></article>
+          <article class="store-preview-card" tabindex="0"><span>✦</span><div><h3>Wings</h3><p>Cosmetic preview</p></div><em>Preview</em></article>
+          <article class="store-preview-card" tabindex="0"><span>⌁</span><div><h3>Trails</h3><p>Effect preview</p></div><em>Preview</em></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section download-section" id="download">
+      <div class="shell">
+        <div class="download-panel reveal">
+          <div class="download-icon"><img src="assets/brands/windows.svg" alt="Windows"></div>
+          <div class="download-copy">
+            <span class="section-kicker">Current public build</span>
+            <h2>DOWNLOAD VELTRIX BETA</h2>
+            <p>VELTRIX Beta v0.8.2 · Windows 10/11 · Early Access</p>
+            <small>This is a test build. Features can be incomplete and bugs can occur. Report problems through VELTRIX Discord Support.</small>
+          </div>
+          <div class="download-actions">
+            <a class="download-primary" href="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe">Download for Windows <span>↓</span></a>
+            <a class="download-support" href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">Report a Beta bug</a>
+          </div>
+        </div>
+
+        <div class="download-platforms reveal" aria-label="Other platform status">
+          <span><img src="assets/brands/apple.svg" alt="" aria-hidden="true"><b>macOS</b><small>Coming Soon</small></span>
+          <span><img src="assets/brands/linux.svg" alt="" aria-hidden="true"><b>Linux</b><small>Coming Soon</small></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section community-section" id="community">
+      <div class="shell community-panel reveal">
+        <div class="community-logo"><img src="assets/brands/discord.svg" alt="Discord"></div>
+        <div>
+          <span class="section-kicker">VELTRIX Community</span>
+          <h2>Join the VELTRIX Discord</h2>
+          <p>Support · Bug Reports · Updates · Community</p>
+        </div>
+        <a href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">Open Discord <span>↗</span></a>
+      </div>
     </section>
   </main>
 
   <footer class="footer">
     <div class="shell footer-inner">
-      <div class="footer-brand"><img src="assets/veltrix-logo-web.webp" alt=""><span><strong>VELTRIX CLIENT BETA</strong><small>EARLY ACCESS — MAY CONTAIN BUGS</small></span></div>
-      <nav><a href="#features">Features</a><a href="#news">News</a><a href="#download">Download</a><a href="https://discord.gg/5WteV2B68C" target="_blank" rel="noopener noreferrer">Support</a><a href="privacy.html">Privacy</a></nav>
-      <div class="footer-copy">SAME GAME.<br>BIGGER POSSIBILITIES.</div>
+      <div class="footer-brand">
+        <img src="assets/veltrix-logo-web.webp" alt="VELTRIX logo">
+        <div><strong>VELTRIX CLIENT BETA</strong><small>Independent Minecraft Java client project.</small></div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="#features">Features</a>
+        <a href="#download">Download</a>
+        <a href="#community">Discord</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="https://github.com/GxCracks/veltrix-client" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <p class="footer-note">VELTRIX is an independent project and is not affiliated with or endorsed by Mojang Studios or Microsoft. Beta / Early Access software may contain bugs.</p>
     </div>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="script.js?v=11"></script>
+  <script src="script.js?v=12"></script>
 </body>
 </html>
