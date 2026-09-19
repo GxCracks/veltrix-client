@@ -5,6 +5,7 @@ SITE="https://gxcracks.github.io/veltrix-client/"
 INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
 SUPPORT="https://discord.gg/nzP6Hq2n2M"
 OLD_SUPPORT="https://discord.gg/5WteV2B68C"
+LOGO="assets/veltrix-logo-user.png"
 
 bash "$ROOT/tests/design_v50_contract.sh"
 bash "$ROOT/tests/site_contract.sh"
@@ -26,6 +27,10 @@ if grep -Eq 'releases/download/v0\.8\.[01]/VELTRIX-Setup-0\.8\.[01]\.exe' "$ROOT
   echo "Stale VELTRIX 0.8.0/0.8.1 installer link remains in script.js"
   exit 1
 fi
+
+# The real uploaded VELTRIX logo must exist as a browser-loadable PNG and be used by the runtime.
+test -f "$ROOT/$LOGO" || { echo "VELTRIX PNG logo asset missing"; exit 1; }
+grep -q "$LOGO" "$ROOT/script.js" || { echo "Runtime does not reference VELTRIX PNG logo"; exit 1; }
 
 # Support must go directly to the official VELTRIX Discord, never back to GitHub or an internal placeholder page.
 grep -q "$SUPPORT" "$ROOT/index.html"
@@ -71,6 +76,8 @@ grep -q 'id="platforms"' "$ROOT/_site/index.html"
 grep -q 'id="roadmap"' "$ROOT/_site/index.html"
 grep -q 'id="community"' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
+test -f "$ROOT/_site/$LOGO" || { echo "Built site missing VELTRIX PNG logo"; exit 1; }
+grep -q "$LOGO" "$ROOT/_site/script.js" || { echo "Built runtime does not reference VELTRIX PNG logo"; exit 1; }
 for icon in windows apple linux discord; do
   test -f "$ROOT/_site/assets/brands/${icon}.svg" || { echo "Built site missing ${icon}.svg"; exit 1; }
   grep -q "assets/brands/${icon}.svg" "$ROOT/_site/index.html" || { echo "Built homepage does not reference ${icon}.svg"; exit 1; }
