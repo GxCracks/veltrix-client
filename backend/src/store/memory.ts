@@ -1,9 +1,230 @@
-import{randomUUID}from'node:crypto';import type{ClientSession,Cosmetic,OwnedCosmetic,User,VeltrixStore,WebLoginRequest,WebSession}from'./types.js';
-const dragon:Cosmetic={id:'veltrix_dragon',name:'VELTRIX Dragon',description:'A cute little Veltrix Dragon that sits on your shoulder and accompanies you throughout Minecraft.',categories:['Pets','Shoulder Cosmetics'],slot:'shoulder',rarity:'LEGENDARY',priceCents:499,currency:'EUR',preview:'assets/cosmetics/veltrix-dragon.svg',modelId:'veltrix_dragon',enabled:true,purchasable:false,limited:false,featured:true,createdAt:new Date('2026-09-19T00:00:00Z')};
-export class MemoryStore implements VeltrixStore{private users=new Map<string,User>();private clientSessions=new Map<string,ClientSession>();private webLoginRequests=new Map<string,WebLoginRequest>();private webSessions=new Map<string,WebSession>();private cosmetics=new Map<string,Cosmetic>([[dragon.id,dragon]]);private owned=new Map<string,{cosmeticId:string;equipped:boolean;purchasedAt:Date;source:string}>();
- async upsertUser(i:Pick<User,'veltrixUserId'|'minecraftUuid'|'minecraftUsername'>){const e=[...this.users.values()].find(u=>u.veltrixUserId===i.veltrixUserId||u.minecraftUuid===i.minecraftUuid),now=new Date();if(e){Object.assign(e,i,{updatedAt:now});return{...e}}const u:User={id:randomUUID(),...i,role:'USER',memberStatus:'Member',createdAt:now,updatedAt:now};this.users.set(u.id,u);return{...u}}
- async getUserById(id:string){const u=this.users.get(id);return u?{...u}:null}async createClientSession(s:ClientSession){this.clientSessions.set(s.id,{...s})}async getClientSessionByHash(h:string){const s=[...this.clientSessions.values()].find(v=>v.tokenHash===h);return s?{...s}:null}async findActiveClientSessionByUsername(n:string,o:Date,now:Date){const u=[...this.users.values()].find(v=>v.minecraftUsername.toLowerCase()===n.toLowerCase());if(!u)return null;const s=[...this.clientSessions.values()].filter(v=>v.userId===u.id&&!v.revokedAt&&v.expiresAt>now&&v.lastSeen>=o).sort((a,b)=>b.lastSeen.getTime()-a.lastSeen.getTime())[0];return s?{...s}:null}async hasActiveClientSession(uid:string,o:Date,now:Date){return[...this.clientSessions.values()].some(v=>v.userId===uid&&!v.revokedAt&&v.expiresAt>now&&v.lastSeen>=o)}async touchClientSession(id:string,at:Date){const s=this.clientSessions.get(id);if(s)s.lastSeen=at}async revokeClientSession(id:string,at:Date){const s=this.clientSessions.get(id);if(s)s.revokedAt=at}
- async expirePendingWebLoginRequests(uid:string,at:Date){for(const r of this.webLoginRequests.values())if(r.userId===uid&&r.status==='pending')r.status='expired'}async createWebLoginRequest(r:WebLoginRequest){this.webLoginRequests.set(r.id,{...r})}async getWebLoginRequest(id:string){const r=this.webLoginRequests.get(id);return r?{...r}:null}async listPendingWebLoginRequests(uid:string,now:Date){return[...this.webLoginRequests.values()].filter(r=>r.userId===uid&&r.status==='pending'&&r.expiresAt>now).map(r=>({...r}))}async setWebLoginStatus(id:string,uid:string,s:'approved'|'denied',at:Date){const r=this.webLoginRequests.get(id);if(!r||r.userId!==uid||r.status!=='pending'||r.expiresAt<=at)return false;r.status=s;s==='approved'?r.approvedAt=at:r.deniedAt=at;return true}async consumeApprovedWebLoginRequest(id:string,at:Date){const r=this.webLoginRequests.get(id);if(!r||r.status!=='approved'||r.consumedAt||r.expiresAt<=at)return null;r.consumedAt=at;return{...r}}
- async createWebSession(s:WebSession){this.webSessions.set(s.id,{...s})}async getWebSessionByHash(h:string){const s=[...this.webSessions.values()].find(v=>v.tokenHash===h);return s?{...s}:null}async updateWebSessionCsrf(id:string,h:string,at:Date){const s=this.webSessions.get(id);if(s){s.csrfHash=h;s.lastSeen=at}}async revokeWebSession(id:string,at:Date){const s=this.webSessions.get(id);if(s)s.revokedAt=at}
- async listCosmetics(){return[...this.cosmetics.values()].filter(c=>c.enabled).map(c=>({...c,categories:[...c.categories]}))}async getCosmetic(id:string){const c=this.cosmetics.get(id);return c?{...c,categories:[...c.categories]}:null}private key(uid:string,id:string){return`${uid}:${id}`}async listOwnedCosmetics(uid:string){const out:OwnedCosmetic[]=[];for(const o of this.owned.values()){const [owner]=[...this.owned.entries()].find(([,v])=>v===o)?.[0].split(':')??[];if(owner!==uid)continue;const c=this.cosmetics.get(o.cosmeticId);if(c)out.push({...c,categories:[...c.categories],owned:true,equipped:o.equipped,purchasedAt:o.purchasedAt,source:o.source})}return out}async grantCosmetic(uid:string,id:string,source:'purchase'|'admin_grant'|'beta_reward'|'promo'){if(!this.cosmetics.has(id))return false;const k=this.key(uid,id);if(!this.owned.has(k))this.owned.set(k,{cosmeticId:id,equipped:false,purchasedAt:new Date(),source});return true}async equipCosmetic(uid:string,id:string){const c=this.cosmetics.get(id);if(!c)return'not_found';const k=this.key(uid,id),o=this.owned.get(k);if(!o)return'not_owned';for(const[key,value]of this.owned){if(!key.startsWith(`${uid}:`))continue;const other=this.cosmetics.get(value.cosmeticId);if(other?.slot===c.slot)value.equipped=false}o.equipped=true;return'ok'}async unequipCosmetic(uid:string,id:string){if(!this.cosmetics.has(id))return'not_found';const o=this.owned.get(this.key(uid,id));if(!o)return'not_owned';o.equipped=false;return'ok'}
+import { randomUUID } from 'node:crypto';
+import type {
+  ClientSession,
+  Cosmetic,
+  OwnedCosmetic,
+  User,
+  VeltrixStore,
+  WebLoginRequest,
+  WebSession,
+} from './types.js';
+
+const dragon: Cosmetic = {
+  id: 'veltrix_dragon',
+  name: 'VELTRIX Dragon',
+  description: 'A cute little Veltrix Dragon that sits on your shoulder and accompanies you throughout Minecraft.',
+  categories: ['Pets', 'Shoulder Cosmetics'],
+  slot: 'shoulder',
+  rarity: 'LEGENDARY',
+  priceCents: 499,
+  currency: 'EUR',
+  preview: 'assets/cosmetics/veltrix-dragon.svg',
+  modelId: 'veltrix_dragon',
+  enabled: true,
+  purchasable: false,
+  limited: false,
+  featured: true,
+  createdAt: new Date('2026-09-19T00:00:00Z'),
+};
+
+type OwnedRecord = {
+  cosmeticId: string;
+  equipped: boolean;
+  purchasedAt: Date;
+  source: string;
+};
+
+export class MemoryStore implements VeltrixStore {
+  private readonly users = new Map<string, User>();
+  private readonly clientSessions = new Map<string, ClientSession>();
+  private readonly webLoginRequests = new Map<string, WebLoginRequest>();
+  private readonly webSessions = new Map<string, WebSession>();
+  private readonly cosmetics = new Map<string, Cosmetic>([[dragon.id, dragon]]);
+  private readonly owned = new Map<string, OwnedRecord>();
+
+  private ownershipKey(userId: string, cosmeticId: string): string {
+    return `${userId}:${cosmeticId}`;
+  }
+
+  async upsertUser(input: Pick<User, 'veltrixUserId' | 'minecraftUuid' | 'minecraftUsername'>): Promise<User> {
+    const existing = [...this.users.values()].find(
+      user => user.veltrixUserId === input.veltrixUserId || user.minecraftUuid === input.minecraftUuid,
+    );
+    const now = new Date();
+    if (existing) {
+      Object.assign(existing, input, { updatedAt: now });
+      return { ...existing };
+    }
+    const user: User = {
+      id: randomUUID(),
+      ...input,
+      role: 'USER',
+      memberStatus: 'Member',
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.users.set(user.id, user);
+    return { ...user };
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    const user = this.users.get(id);
+    return user ? { ...user } : null;
+  }
+
+  async createClientSession(session: ClientSession): Promise<void> {
+    this.clientSessions.set(session.id, { ...session });
+  }
+
+  async getClientSessionByHash(tokenHash: string): Promise<ClientSession | null> {
+    const session = [...this.clientSessions.values()].find(value => value.tokenHash === tokenHash);
+    return session ? { ...session } : null;
+  }
+
+  async findActiveClientSessionByUsername(username: string, onlineAfter: Date, now: Date): Promise<ClientSession | null> {
+    const user = [...this.users.values()].find(value => value.minecraftUsername.toLowerCase() === username.toLowerCase());
+    if (!user) return null;
+    const session = [...this.clientSessions.values()]
+      .filter(value => value.userId === user.id && !value.revokedAt && value.expiresAt > now && value.lastSeen >= onlineAfter)
+      .sort((a, b) => b.lastSeen.getTime() - a.lastSeen.getTime())[0];
+    return session ? { ...session } : null;
+  }
+
+  async hasActiveClientSession(userId: string, onlineAfter: Date, now: Date): Promise<boolean> {
+    return [...this.clientSessions.values()].some(
+      value => value.userId === userId && !value.revokedAt && value.expiresAt > now && value.lastSeen >= onlineAfter,
+    );
+  }
+
+  async touchClientSession(id: string, at: Date): Promise<void> {
+    const session = this.clientSessions.get(id);
+    if (session) session.lastSeen = at;
+  }
+
+  async revokeClientSession(id: string, at: Date): Promise<void> {
+    const session = this.clientSessions.get(id);
+    if (session) session.revokedAt = at;
+  }
+
+  async expirePendingWebLoginRequests(userId: string, _at: Date): Promise<void> {
+    for (const request of this.webLoginRequests.values()) {
+      if (request.userId === userId && request.status === 'pending') request.status = 'expired';
+    }
+  }
+
+  async createWebLoginRequest(request: WebLoginRequest): Promise<void> {
+    this.webLoginRequests.set(request.id, { ...request });
+  }
+
+  async getWebLoginRequest(id: string): Promise<WebLoginRequest | null> {
+    const request = this.webLoginRequests.get(id);
+    return request ? { ...request } : null;
+  }
+
+  async listPendingWebLoginRequests(userId: string, now: Date): Promise<WebLoginRequest[]> {
+    return [...this.webLoginRequests.values()]
+      .filter(request => request.userId === userId && request.status === 'pending' && request.expiresAt > now)
+      .map(request => ({ ...request }));
+  }
+
+  async setWebLoginStatus(id: string, userId: string, status: 'approved' | 'denied', at: Date): Promise<boolean> {
+    const request = this.webLoginRequests.get(id);
+    if (!request || request.userId !== userId || request.status !== 'pending' || request.expiresAt <= at) return false;
+    request.status = status;
+    if (status === 'approved') request.approvedAt = at;
+    else request.deniedAt = at;
+    return true;
+  }
+
+  async consumeApprovedWebLoginRequest(id: string, at: Date): Promise<WebLoginRequest | null> {
+    const request = this.webLoginRequests.get(id);
+    if (!request || request.status !== 'approved' || request.consumedAt || request.expiresAt <= at) return null;
+    request.consumedAt = at;
+    return { ...request };
+  }
+
+  async createWebSession(session: WebSession): Promise<void> {
+    this.webSessions.set(session.id, { ...session });
+  }
+
+  async getWebSessionByHash(tokenHash: string): Promise<WebSession | null> {
+    const session = [...this.webSessions.values()].find(value => value.tokenHash === tokenHash);
+    return session ? { ...session } : null;
+  }
+
+  async updateWebSessionCsrf(id: string, csrfHash: string, at: Date): Promise<void> {
+    const session = this.webSessions.get(id);
+    if (session) {
+      session.csrfHash = csrfHash;
+      session.lastSeen = at;
+    }
+  }
+
+  async revokeWebSession(id: string, at: Date): Promise<void> {
+    const session = this.webSessions.get(id);
+    if (session) session.revokedAt = at;
+  }
+
+  async listCosmetics(): Promise<Cosmetic[]> {
+    return [...this.cosmetics.values()]
+      .filter(cosmetic => cosmetic.enabled)
+      .map(cosmetic => ({ ...cosmetic, categories: [...cosmetic.categories] }));
+  }
+
+  async getCosmetic(id: string): Promise<Cosmetic | null> {
+    const cosmetic = this.cosmetics.get(id);
+    return cosmetic ? { ...cosmetic, categories: [...cosmetic.categories] } : null;
+  }
+
+  async listOwnedCosmetics(userId: string): Promise<OwnedCosmetic[]> {
+    const result: OwnedCosmetic[] = [];
+    const prefix = `${userId}:`;
+    for (const [key, record] of this.owned) {
+      if (!key.startsWith(prefix)) continue;
+      const cosmetic = this.cosmetics.get(record.cosmeticId);
+      if (!cosmetic) continue;
+      result.push({
+        ...cosmetic,
+        categories: [...cosmetic.categories],
+        owned: true,
+        equipped: record.equipped,
+        purchasedAt: record.purchasedAt,
+        source: record.source,
+      });
+    }
+    return result;
+  }
+
+  async grantCosmetic(userId: string, cosmeticId: string, source: 'purchase' | 'admin_grant' | 'beta_reward' | 'promo'): Promise<boolean> {
+    if (!this.cosmetics.has(cosmeticId)) return false;
+    const key = this.ownershipKey(userId, cosmeticId);
+    if (!this.owned.has(key)) {
+      this.owned.set(key, { cosmeticId, equipped: false, purchasedAt: new Date(), source });
+    }
+    return true;
+  }
+
+  async equipCosmetic(userId: string, cosmeticId: string): Promise<'ok' | 'not_owned' | 'not_found'> {
+    const cosmetic = this.cosmetics.get(cosmeticId);
+    if (!cosmetic) return 'not_found';
+    const owned = this.owned.get(this.ownershipKey(userId, cosmeticId));
+    if (!owned) return 'not_owned';
+
+    const prefix = `${userId}:`;
+    for (const [key, record] of this.owned) {
+      if (!key.startsWith(prefix)) continue;
+      const otherCosmetic = this.cosmetics.get(record.cosmeticId);
+      if (otherCosmetic?.slot === cosmetic.slot) record.equipped = false;
+    }
+    owned.equipped = true;
+    return 'ok';
+  }
+
+  async unequipCosmetic(userId: string, cosmeticId: string): Promise<'ok' | 'not_owned' | 'not_found'> {
+    if (!this.cosmetics.has(cosmeticId)) return 'not_found';
+    const owned = this.owned.get(this.ownershipKey(userId, cosmeticId));
+    if (!owned) return 'not_owned';
+    owned.equipped = false;
+    return 'ok';
+  }
 }
