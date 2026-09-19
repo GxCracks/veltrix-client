@@ -1,6 +1,6 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
-  const newLogoUrl = 'assets/veltrix-logo-user.svg';
+  const newLogoUrl = 'assets/veltrix-logo-user.png';
 
   document.querySelectorAll('.header-download,.hero-primary,.platform-windows a,.download-panel a[href*="VELTRIX-Setup-"]').forEach(link => {
     link.setAttribute('href', windowsInstallerUrl);
