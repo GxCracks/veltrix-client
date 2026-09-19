@@ -1,52 +1,29 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
-import type { ClientSession, User, VeltrixStore } from './types.js';
+import type { ClientSession, User, VeltrixStore, WebLoginRequest, WebSession } from './types.js';
 
-function toUser(row: Record<string, unknown>): User {
-  return {
-    id: String(row.id),
-    veltrixUserId: String(row.veltrix_user_id),
-    minecraftUuid: String(row.minecraft_uuid),
-    minecraftUsername: String(row.minecraft_username),
-    role: String(row.role) as User['role'],
-    memberStatus: String(row.member_status),
-    createdAt: new Date(String(row.created_at)),
-    updatedAt: new Date(String(row.updated_at))
-  };
-}
-
-function toClientSession(row: Record<string, unknown>): ClientSession {
-  return {
-    id: String(row.id), userId: String(row.user_id), minecraftUuid: String(row.minecraft_uuid), tokenHash: String(row.token_hash),
-    createdAt: new Date(String(row.created_at)), expiresAt: new Date(String(row.expires_at)), lastSeen: new Date(String(row.last_seen)),
-    revokedAt: row.revoked_at ? new Date(String(row.revoked_at)) : null
-  };
-}
+const user=(r:any):User=>({id:String(r.id),veltrixUserId:String(r.veltrix_user_id),minecraftUuid:String(r.minecraft_uuid),minecraftUsername:String(r.minecraft_username),role:String(r.role) as User['role'],memberStatus:String(r.member_status),createdAt:new Date(r.created_at),updatedAt:new Date(r.updated_at)});
+const client=(r:any):ClientSession=>({id:String(r.id),userId:String(r.user_id),minecraftUuid:String(r.minecraft_uuid),tokenHash:String(r.token_hash),createdAt:new Date(r.created_at),expiresAt:new Date(r.expires_at),lastSeen:new Date(r.last_seen),revokedAt:r.revoked_at?new Date(r.revoked_at):null});
+const login=(r:any):WebLoginRequest=>({id:String(r.id),verificationCodeHash:String(r.verification_code_hash),codeCiphertext:String(r.verification_code_ciphertext),minecraftUuid:String(r.minecraft_uuid),userId:String(r.user_id),status:String(r.status) as WebLoginRequest['status'],createdAt:new Date(r.created_at),expiresAt:new Date(r.expires_at),approvedAt:r.approved_at?new Date(r.approved_at):null,deniedAt:r.denied_at?new Date(r.denied_at):null,consumedAt:r.consumed_at?new Date(r.consumed_at):null});
+const web=(r:any):WebSession=>({id:String(r.id),userId:String(r.user_id),tokenHash:String(r.token_hash),csrfHash:String(r.csrf_hash),createdAt:new Date(r.created_at),expiresAt:new Date(r.expires_at),lastSeen:new Date(r.last_seen),revokedAt:r.revoked_at?new Date(r.revoked_at):null});
 
 export class PostgresStore implements VeltrixStore {
-  constructor(private readonly pool: Pool) {}
-
-  async upsertUser(input: Pick<User, 'veltrixUserId' | 'minecraftUuid' | 'minecraftUsername'>): Promise<User> {
-    const existing = await this.pool.query('SELECT * FROM users WHERE veltrix_user_id=$1 OR minecraft_uuid=$2 LIMIT 1', [input.veltrixUserId, input.minecraftUuid]);
-    if (existing.rowCount) {
-      const id = String(existing.rows[0].id);
-      const updated = await this.pool.query('UPDATE users SET veltrix_user_id=$1,minecraft_uuid=$2,minecraft_username=$3,updated_at=NOW() WHERE id=$4 RETURNING *', [input.veltrixUserId,input.minecraftUuid,input.minecraftUsername,id]);
-      return toUser(updated.rows[0]);
-    }
-    const inserted = await this.pool.query('INSERT INTO users(id,veltrix_user_id,minecraft_uuid,minecraft_username) VALUES($1,$2,$3,$4) RETURNING *', [randomUUID(),input.veltrixUserId,input.minecraftUuid,input.minecraftUsername]);
-    return toUser(inserted.rows[0]);
-  }
-
-  async createClientSession(session: ClientSession): Promise<void> {
-    await this.pool.query('INSERT INTO client_sessions(id,user_id,minecraft_uuid,token_hash,created_at,expires_at,last_seen,revoked_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)', [session.id,session.userId,session.minecraftUuid,session.tokenHash,session.createdAt,session.expiresAt,session.lastSeen,session.revokedAt]);
-  }
-
-  async getClientSessionByHash(tokenHash: string): Promise<ClientSession | null> {
-    const result = await this.pool.query('SELECT * FROM client_sessions WHERE token_hash=$1 LIMIT 1', [tokenHash]);
-    return result.rowCount ? toClientSession(result.rows[0]) : null;
-  }
-
-  async touchClientSession(id: string, at: Date): Promise<void> { await this.pool.query('UPDATE client_sessions SET last_seen=$1 WHERE id=$2', [at,id]); }
-  async revokeClientSession(id: string, at: Date): Promise<void> { await this.pool.query('UPDATE client_sessions SET revoked_at=$1 WHERE id=$2 AND revoked_at IS NULL', [at,id]); }
-  async getUserById(id: string): Promise<User | null> { const r=await this.pool.query('SELECT * FROM users WHERE id=$1 LIMIT 1',[id]); return r.rowCount?toUser(r.rows[0]):null; }
+ constructor(private readonly pool:Pool){}
+ async upsertUser(i:Pick<User,'veltrixUserId'|'minecraftUuid'|'minecraftUsername'>){const e=await this.pool.query('SELECT * FROM users WHERE veltrix_user_id=$1 OR minecraft_uuid=$2 LIMIT 1',[i.veltrixUserId,i.minecraftUuid]);if(e.rowCount){const r=await this.pool.query('UPDATE users SET veltrix_user_id=$1,minecraft_uuid=$2,minecraft_username=$3,updated_at=NOW() WHERE id=$4 RETURNING *',[i.veltrixUserId,i.minecraftUuid,i.minecraftUsername,e.rows[0].id]);return user(r.rows[0]);}const r=await this.pool.query('INSERT INTO users(id,veltrix_user_id,minecraft_uuid,minecraft_username) VALUES($1,$2,$3,$4) RETURNING *',[randomUUID(),i.veltrixUserId,i.minecraftUuid,i.minecraftUsername]);return user(r.rows[0]);}
+ async getUserById(id:string){const r=await this.pool.query('SELECT * FROM users WHERE id=$1 LIMIT 1',[id]);return r.rowCount?user(r.rows[0]):null;}
+ async createClientSession(s:ClientSession){await this.pool.query('INSERT INTO client_sessions(id,user_id,minecraft_uuid,token_hash,created_at,expires_at,last_seen,revoked_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[s.id,s.userId,s.minecraftUuid,s.tokenHash,s.createdAt,s.expiresAt,s.lastSeen,s.revokedAt]);}
+ async getClientSessionByHash(h:string){const r=await this.pool.query('SELECT * FROM client_sessions WHERE token_hash=$1 LIMIT 1',[h]);return r.rowCount?client(r.rows[0]):null;}
+ async findActiveClientSessionByUsername(n:string,o:Date,now:Date){const r=await this.pool.query('SELECT cs.* FROM client_sessions cs JOIN users u ON u.id=cs.user_id WHERE LOWER(u.minecraft_username)=LOWER($1) AND cs.revoked_at IS NULL AND cs.expires_at>$2 AND cs.last_seen>=$3 ORDER BY cs.last_seen DESC LIMIT 1',[n,now,o]);return r.rowCount?client(r.rows[0]):null;}
+ async touchClientSession(id:string,at:Date){await this.pool.query('UPDATE client_sessions SET last_seen=$1 WHERE id=$2',[at,id]);}
+ async revokeClientSession(id:string,at:Date){await this.pool.query('UPDATE client_sessions SET revoked_at=$1 WHERE id=$2 AND revoked_at IS NULL',[at,id]);}
+ async expirePendingWebLoginRequests(uid:string,at:Date){await this.pool.query("UPDATE web_login_requests SET status='expired' WHERE user_id=$1 AND status='pending'",[uid]);}
+ async createWebLoginRequest(r:WebLoginRequest){await this.pool.query('INSERT INTO web_login_requests(id,verification_code_hash,verification_code_ciphertext,minecraft_uuid,user_id,status,created_at,expires_at,approved_at,denied_at,consumed_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[r.id,r.verificationCodeHash,r.codeCiphertext,r.minecraftUuid,r.userId,r.status,r.createdAt,r.expiresAt,r.approvedAt,r.deniedAt,r.consumedAt]);}
+ async getWebLoginRequest(id:string){const r=await this.pool.query('SELECT * FROM web_login_requests WHERE id=$1 LIMIT 1',[id]);return r.rowCount?login(r.rows[0]):null;}
+ async listPendingWebLoginRequests(uid:string,now:Date){const r=await this.pool.query("SELECT * FROM web_login_requests WHERE user_id=$1 AND status='pending' AND expires_at>$2 ORDER BY created_at DESC",[uid,now]);return r.rows.map(login);}
+ async setWebLoginStatus(id:string,uid:string,status:'approved'|'denied',at:Date){const column=status==='approved'?'approved_at':'denied_at';const r=await this.pool.query(`UPDATE web_login_requests SET status=$1,${column}=$2 WHERE id=$3 AND user_id=$4 AND status='pending' AND expires_at>$2 RETURNING id`,[status,at,id,uid]);return Boolean(r.rowCount);}
+ async consumeApprovedWebLoginRequest(id:string,at:Date){const r=await this.pool.query("UPDATE web_login_requests SET consumed_at=$1 WHERE id=$2 AND status='approved' AND consumed_at IS NULL AND expires_at>$1 RETURNING *",[at,id]);return r.rowCount?login(r.rows[0]):null;}
+ async createWebSession(s:WebSession){await this.pool.query('INSERT INTO web_sessions(id,user_id,token_hash,csrf_hash,created_at,expires_at,last_seen,revoked_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[s.id,s.userId,s.tokenHash,s.csrfHash,s.createdAt,s.expiresAt,s.lastSeen,s.revokedAt]);}
+ async getWebSessionByHash(h:string){const r=await this.pool.query('SELECT * FROM web_sessions WHERE token_hash=$1 LIMIT 1',[h]);return r.rowCount?web(r.rows[0]):null;}
+ async updateWebSessionCsrf(id:string,h:string,at:Date){await this.pool.query('UPDATE web_sessions SET csrf_hash=$1,last_seen=$2 WHERE id=$3',[h,at,id]);}
+ async revokeWebSession(id:string,at:Date){await this.pool.query('UPDATE web_sessions SET revoked_at=$1 WHERE id=$2 AND revoked_at IS NULL',[at,id]);}
 }
