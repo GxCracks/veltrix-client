@@ -16,7 +16,13 @@ PUBLIC_FILES = [
     "privacy.html",
     "404.html",
     "style.css",
+    "veltrix-extras.css",
     "script.js",
+    "api.js",
+    "cosmetics.html",
+    "cosmetics.js",
+    "account.html",
+    "account.js",
     "news.json",
     "robots.txt",
     "sitemap.xml",
@@ -87,7 +93,10 @@ def validate():
     if (OUT / "CNAME").exists():
         raise SystemExit("CNAME must not be published while using the GitHub Pages project URL")
 
-    runtime_files = [OUT / "index.html", OUT / "privacy.html", OUT / "404.html", OUT / "style.css", OUT / "script.js"]
+    runtime_files = [OUT / name for name in [
+        "index.html", "privacy.html", "404.html", "style.css", "veltrix-extras.css",
+        "script.js", "api.js", "cosmetics.html", "cosmetics.js", "account.html", "account.js"
+    ]]
     insecure = re.compile(r'(?:href|src)=["\']http://|url\(["\']?http://', re.I)
     for path in runtime_files:
         text = path.read_text(encoding="utf-8")
