@@ -1,0 +1,33 @@
+name: VELTRIX Feature CI
+
+on:
+  push:
+    branches: ["feature/veltrix-cosmetics-backend"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Frontend contracts
+        run: |
+          bash tests/design_v50_contract.sh
+          bash tests/cosmetics_contract.sh
+          bash tests/site_contract.sh
+          bash tests/public_distribution_contract.sh
+          bash tests/github_pages_domain_contract.sh
+
+      - name: Backend tests and build
+        if: ${{ hashFiles('backend/package.json') != '' }}
+        working-directory: backend
+        run: |
+          npm ci
+          npm test
+          npm run build
