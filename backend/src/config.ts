@@ -6,6 +6,7 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1).optional(),
   SESSION_SECRET: z.string().min(16).optional(),
   TOKEN_PEPPER: z.string().min(16).optional(),
+  CLIENT_HANDOFF_SECRET: z.string().min(24).optional(),
   CORS_ORIGIN: z.string().min(1).default('http://localhost:8080'),
   COOKIE_SECURE: z.enum(['true', 'false']).default('true')
 });
@@ -16,6 +17,7 @@ export type AppConfig = {
   databaseUrl?: string;
   sessionSecret: string;
   tokenPepper: string;
+  clientHandoffSecret: string;
   corsOrigins: string[];
   cookieSecure: boolean;
 };
@@ -26,12 +28,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   if (production && !parsed.DATABASE_URL) throw new Error('DATABASE_URL is required in production');
   if (production && !parsed.SESSION_SECRET) throw new Error('SESSION_SECRET is required in production');
   if (production && !parsed.TOKEN_PEPPER) throw new Error('TOKEN_PEPPER is required in production');
+  if (production && !parsed.CLIENT_HANDOFF_SECRET) throw new Error('CLIENT_HANDOFF_SECRET is required in production');
   return {
     nodeEnv: parsed.NODE_ENV,
     port: parsed.PORT,
     databaseUrl: parsed.DATABASE_URL,
     sessionSecret: parsed.SESSION_SECRET ?? 'test-session-secret-not-for-production',
     tokenPepper: parsed.TOKEN_PEPPER ?? 'test-token-pepper-not-for-production',
+    clientHandoffSecret: parsed.CLIENT_HANDOFF_SECRET ?? 'test-client-handoff-secret-not-production',
     corsOrigins: parsed.CORS_ORIGIN.split(',').map(value => value.trim()).filter(Boolean),
     cookieSecure: parsed.COOKIE_SECURE === 'true'
   };
