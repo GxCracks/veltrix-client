@@ -13,7 +13,8 @@ fail(){ echo "FAIL: $1" >&2; exit 1; }
 
 [[ -f news.json ]] || fail "news.json missing"
 [[ -f downloads/VELTRIX-Client-0.8.0-Windows.zip ]] || fail "Windows client download missing"
-grep -qi "DOWNLOAD VELTRIX 0.8.0" index.html || fail "download CTA missing"
+grep -qi "DOWNLOAD VELTRIX BETA" index.html || fail "download CTA missing"
+grep -qi "0.8.2" index.html || fail "current beta version missing"
 grep -qi "LATEST NEWS" index.html || fail "news section missing"
 grep -qi "news.json" script.js || fail "news feed loader missing"
 grep -qi "VELTRIX" index.html || fail "VELTRIX branding missing"
