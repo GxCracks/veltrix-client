@@ -3,6 +3,7 @@ export type RealtimeEventType =
   | 'web_login_approved'
   | 'web_login_denied'
   | 'cosmetic_owned'
+  | 'cosmetic_granted'
   | 'cosmetic_equipped'
   | 'cosmetic_unequipped'
   | 'account_updated'
