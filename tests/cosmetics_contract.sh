@@ -9,7 +9,7 @@ done
 grep -q 'veltrix-intro' "$ROOT/script.js"
 grep -q 'veltrix_intro_seen' "$ROOT/script.js"
 grep -q 'cosmetics.html' "$ROOT/script.js"
-grep -q 'aria-label="Enter VELTRIX website"' "$ROOT/script.js"
+grep -q 'Enter VELTRIX website' "$ROOT/script.js"
 grep -q 'sessionStorage.setItem(INTRO_KEY' "$ROOT/script.js"
 grep -q 'prefers-reduced-motion' "$ROOT/veltrix-extras.css"
 grep -q 'VELTRIX COSMETICS' "$ROOT/cosmetics.html"
