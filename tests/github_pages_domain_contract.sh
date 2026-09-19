@@ -53,7 +53,7 @@ grep -q 'https://gxcracks.github.io/veltrix-client/privacy.html' "$ROOT/_site/pr
 grep -q "$INSTALLER" "$ROOT/_site/index.html"
 grep -q "$INSTALLER" "$ROOT/_site/script.js"
 grep -q "$SUPPORT" "$ROOT/_site/index.html"
-grep -q 'VELTRIX Client 0.8.2' "$ROOT/_site/index.html"
+grep -q 'BETA / EARLY ACCESS — v0.8.2' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
 for icon in windows apple linux discord; do
   test -f "$ROOT/_site/assets/brands/${icon}.svg" || { echo "Built site missing ${icon}.svg"; exit 1; }
