@@ -40,8 +40,9 @@ describe('one-time website login', () => {
 
     const completed = await web.post(`/api/web-login/${login.body.requestId}/complete`).expect(200);
     expect(completed.body.csrfToken).toEqual(expect.any(String));
-    expect(completed.headers['set-cookie']?.join(';')).toContain('HttpOnly');
-    expect(completed.headers['set-cookie']?.join(';')).toContain('SameSite=None');
+    const cookies = String(completed.headers['set-cookie'] ?? '');
+    expect(cookies).toContain('HttpOnly');
+    expect(cookies).toContain('SameSite=None');
 
     const reused = await web.post(`/api/web-login/${login.body.requestId}/complete`).expect(409);
     expect(reused.body.code).toBe('LOGIN_ALREADY_USED');
