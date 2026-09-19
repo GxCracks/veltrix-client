@@ -23,6 +23,7 @@ jobs:
           bash tests/site_contract.sh
           bash tests/public_distribution_contract.sh
           bash tests/github_pages_domain_contract.sh
+          bash tests/railway_contract.sh
 
       - name: Backend tests and build
         if: ${{ hashFiles('backend/package.json') != '' }}
