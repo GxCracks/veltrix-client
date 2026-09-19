@@ -8,6 +8,8 @@ OUT = ROOT / "_site"
 SITE_URL = "https://gxcracks.github.io/veltrix-client/"
 CURRENT_VERSION = "0.8.2"
 WINDOWS_INSTALLER = "https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
+BRAND_LOGO = "assets/veltrix-brand.svg"
+BRAND_MARK = "assets/veltrix-mark.svg"
 
 PUBLIC_FILES = [
     "index.html",
@@ -26,6 +28,20 @@ INDEX_SEO = f'''  <link rel="canonical" href="{SITE_URL}">\n  <meta property="og
 PRIVACY_URL = SITE_URL + "privacy.html"
 PRIVACY_SEO = f'<meta name="description" content="Privacy information for the independent VELTRIX Client project."><link rel="canonical" href="{PRIVACY_URL}"><meta property="og:type" content="website"><meta property="og:title" content="VELTRIX Client — Privacy"><meta property="og:description" content="Privacy information for the independent VELTRIX Client project."><meta property="og:url" content="{PRIVACY_URL}"><meta property="og:image" content="{SITE_URL}assets/veltrix-logo-web.webp">'
 
+BRAND_CSS = r'''
+
+/* Stable VELTRIX brand lockup */
+.brand{min-width:176px;gap:0}
+.brand>img{width:168px;height:56px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(40,206,255,.18))}
+.brand>span{display:none}
+.footer-brand>img{width:210px;height:82px;object-fit:contain;filter:drop-shadow(0 0 18px rgba(126,70,255,.16))}
+@media (max-width:760px){
+  .brand{min-width:138px}
+  .brand>img{width:136px;height:46px}
+  .footer-brand>img{width:178px;height:70px}
+}
+'''
+
 
 def prepare_runtime_content():
     index = OUT / "index.html"
@@ -35,6 +51,10 @@ def prepare_runtime_content():
         WINDOWS_INSTALLER,
     )
     text = text.replace("0.8.0", CURRENT_VERSION)
+    text = text.replace('<link rel="icon" href="assets/favicon.png">', f'<link rel="icon" href="{BRAND_MARK}" type="image/svg+xml">')
+    text = text.replace('style.css?v=12', 'style.css?v=13')
+    text = text.replace('script.js?v=12', 'script.js?v=13')
+    text = text.replace('src="assets/veltrix-logo-web.webp" alt="VELTRIX logo"', f'src="{BRAND_LOGO}" alt="VELTRIX Client logo"')
     index.write_text(text, encoding="utf-8")
 
     script = OUT / "script.js"
@@ -44,6 +64,9 @@ def prepare_runtime_content():
         WINDOWS_INSTALLER,
     )
     script.write_text(text, encoding="utf-8")
+
+    style = OUT / "style.css"
+    style.write_text(style.read_text(encoding="utf-8") + BRAND_CSS, encoding="utf-8")
 
 
 def inject_seo():
@@ -83,6 +106,10 @@ def validate():
         raise SystemExit("VELTRIX 0.8.2 Windows installer link missing")
     if CURRENT_VERSION not in index or "BETA / EARLY ACCESS" not in index:
         raise SystemExit("VELTRIX 0.8.2 beta version text missing")
+    if BRAND_LOGO not in index or BRAND_MARK not in index:
+        raise SystemExit("VELTRIX brand assets missing from built homepage")
+    if "newLogoUrl" in script or "setAttribute('src', newLogoUrl)" in script:
+        raise SystemExit("Legacy runtime logo swap remains in built JavaScript")
     if "https://veltrixclient.de" in index or "https://veltrixclient.de" in privacy:
         raise SystemExit("Old custom-domain metadata remains in deployed pages")
 
