@@ -5,6 +5,8 @@ SITE="https://gxcracks.github.io/veltrix-client/"
 INSTALLER="https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe"
 SUPPORT="https://discord.gg/5WteV2B68C"
 
+bash "$ROOT/tests/design_v50_contract.sh"
+
 if [[ -e "$ROOT/CNAME" ]]; then
   echo "CNAME must be absent when using the GitHub Pages project URL"
   exit 1
@@ -54,6 +56,9 @@ grep -q "$INSTALLER" "$ROOT/_site/index.html"
 grep -q "$INSTALLER" "$ROOT/_site/script.js"
 grep -q "$SUPPORT" "$ROOT/_site/index.html"
 grep -q 'BETA / EARLY ACCESS — v0.8.2' "$ROOT/_site/index.html"
+grep -q 'id="platforms"' "$ROOT/_site/index.html"
+grep -q 'id="roadmap"' "$ROOT/_site/index.html"
+grep -q 'id="community"' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
 for icon in windows apple linux discord; do
   test -f "$ROOT/_site/assets/brands/${icon}.svg" || { echo "Built site missing ${icon}.svg"; exit 1; }
