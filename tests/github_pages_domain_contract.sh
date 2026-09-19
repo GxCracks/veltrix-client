@@ -29,6 +29,17 @@ if grep -q 'href="support.html"' "$ROOT/index.html"; then
   exit 1
 fi
 
+# Platform and community actions use local brand SVG assets instead of placeholder glyphs.
+for icon in windows apple linux discord; do
+  test -f "$ROOT/assets/brands/${icon}.svg" || { echo "Missing local brand icon: ${icon}.svg"; exit 1; }
+  grep -q "assets/brands/${icon}.svg" "$ROOT/index.html" || { echo "Homepage does not reference ${icon}.svg"; exit 1; }
+done
+
+if grep -Eq '<b>[⊞●△◉]</b>|<span class="discord-mark">◉</span>' "$ROOT/index.html"; then
+  echo "Placeholder platform/community glyph remains in homepage"
+  exit 1
+fi
+
 if grep -R -q 'https://veltrixclient.de' "$ROOT/README.md" "$ROOT/robots.txt" "$ROOT/sitemap.xml" "$ROOT/news.json"; then
   echo "Old custom-domain URL remains in public configuration"
   exit 1
@@ -44,6 +55,10 @@ grep -q "$INSTALLER" "$ROOT/_site/script.js"
 grep -q "$SUPPORT" "$ROOT/_site/index.html"
 grep -q 'VELTRIX Client 0.8.2' "$ROOT/_site/index.html"
 grep -q "const base = '/veltrix-client'" "$ROOT/_site/404.html"
+for icon in windows apple linux discord; do
+  test -f "$ROOT/_site/assets/brands/${icon}.svg" || { echo "Built site missing ${icon}.svg"; exit 1; }
+  grep -q "assets/brands/${icon}.svg" "$ROOT/_site/index.html" || { echo "Built homepage does not reference ${icon}.svg"; exit 1; }
+done
 
 if grep -R -q 'https://veltrixclient.de' "$ROOT/_site"; then
   echo "Old custom-domain URL remains in deployed site"
