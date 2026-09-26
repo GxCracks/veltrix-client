@@ -30,9 +30,11 @@ grep -qi "github pages" README.md || fail "publishing docs missing"
 
 # Cosmetic mod download contract
 grep -q "cosmeticModDownloadUrl" script.js || fail "cosmetic mod download URL missing"
-grep -q "cosmetics-latest/VELTRIX-Cosmetics.jar" script.js || fail "stable cosmetic mod asset URL missing"
+grep -q "https://github.com/GxCracks/veltrix-client/releases'" script.js || fail "cosmetic mod releases fallback URL missing"
+if grep -q "cosmetics-latest/VELTRIX-Cosmetics.jar" script.js; then fail "dead cosmetic mod asset URL must not remain active"; fi
 grep -q "Cosmetic Mod herunterladen" script.js || fail "cosmetic mod CTA missing"
 grep -q "Minecraft 1.21.11" script.js || fail "cosmetic mod version label missing"
+grep -q "GitHub Releases" script.js || fail "cosmetic mod fallback hint missing"
 grep -q "cosmetic-mod-download" script.js || fail "cosmetic mod download styling hook missing"
 
 echo "SiteContract: PASS"

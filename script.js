@@ -1,6 +1,6 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
-  const cosmeticModDownloadUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/cosmetics-latest/VELTRIX-Cosmetics.jar';
+  const cosmeticModDownloadUrl = 'https://github.com/GxCracks/veltrix-client/releases';
   const INTRO_KEY = 'veltrix_intro_seen';
 
   if (!document.querySelector('link[href="veltrix-extras.css"]')) {
@@ -110,14 +110,14 @@
     const modDownload = document.createElement('a');
     modDownload.className = 'cosmetic-mod-download';
     modDownload.href = cosmeticModDownloadUrl;
-    modDownload.setAttribute('aria-label', 'Neueste VELTRIX Cosmetic Mod für Minecraft 1.21.11 herunterladen');
+    modDownload.setAttribute('aria-label', 'VELTRIX Cosmetic Mod Releases für Minecraft 1.21.11 öffnen');
     modDownload.innerHTML = `
       <span class="cosmetic-mod-download__icon" aria-hidden="true">V</span>
       <span class="cosmetic-mod-download__copy">
         <strong>Cosmetic Mod herunterladen</strong>
-        <small>Neueste Version · Fabric · Minecraft 1.21.11 · .jar</small>
+        <small>Fabric · Minecraft 1.21.11 · Download über GitHub Releases</small>
       </span>
-      <span class="cosmetic-mod-download__arrow" aria-hidden="true">↓</span>
+      <span class="cosmetic-mod-download__arrow" aria-hidden="true">→</span>
     `;
     downloadPanel.appendChild(modDownload);
   }
