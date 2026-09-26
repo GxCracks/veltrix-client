@@ -1,5 +1,6 @@
 (() => {
   const windowsInstallerUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe';
+  const cosmeticModDownloadUrl = 'https://github.com/GxCracks/veltrix-client/releases/download/cosmetics-latest/VELTRIX-Cosmetics.jar';
   const INTRO_KEY = 'veltrix_intro_seen';
 
   if (!document.querySelector('link[href="veltrix-extras.css"]')) {
@@ -46,6 +47,80 @@
   document.querySelectorAll('.header-download,.hero-primary,.platform-windows a,.download-panel a[href*="VELTRIX-Setup-"]').forEach(link => {
     link.setAttribute('href', windowsInstallerUrl);
   });
+
+  const downloadPanel = document.querySelector('.download-panel');
+  if (downloadPanel && !downloadPanel.querySelector('.cosmetic-mod-download')) {
+    if (!document.getElementById('cosmetic-mod-download-style')) {
+      const style = document.createElement('style');
+      style.id = 'cosmetic-mod-download-style';
+      style.textContent = `
+        .cosmetic-mod-download{
+          position:relative;
+          display:grid;
+          grid-template-columns:48px minmax(0,1fr) auto;
+          align-items:center;
+          gap:14px;
+          min-width:min(100%,330px);
+          padding:14px 16px;
+          border:1px solid rgba(98,216,247,.3);
+          border-radius:14px;
+          background:linear-gradient(135deg,rgba(98,216,247,.12),rgba(105,215,165,.055));
+          color:#f6fbfd;
+          box-shadow:0 18px 45px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.04);
+          overflow:hidden;
+          transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+        }
+        .cosmetic-mod-download:before{
+          content:"";
+          position:absolute;
+          inset:0;
+          pointer-events:none;
+          background:linear-gradient(110deg,transparent 15%,rgba(98,216,247,.07),transparent 70%);
+        }
+        .cosmetic-mod-download:hover{
+          transform:translateY(-2px);
+          border-color:rgba(98,216,247,.55);
+          box-shadow:0 22px 52px rgba(0,0,0,.3),0 0 32px rgba(98,216,247,.08);
+        }
+        .cosmetic-mod-download__icon{
+          width:48px;
+          height:48px;
+          display:grid;
+          place-items:center;
+          border:1px solid rgba(98,216,247,.24);
+          border-radius:12px;
+          background:rgba(5,15,20,.72);
+          color:#8ce7ff;
+          font-size:1.1rem;
+          font-weight:900;
+          letter-spacing:.04em;
+        }
+        .cosmetic-mod-download__copy{display:block;min-width:0;line-height:1.25}
+        .cosmetic-mod-download__copy strong{display:block;font-size:.88rem;letter-spacing:.01em}
+        .cosmetic-mod-download__copy small{display:block;margin-top:5px;color:#9fb3bd;font-size:.67rem;line-height:1.35}
+        .cosmetic-mod-download__arrow{color:#8ce7ff;font-size:1.15rem;font-weight:900}
+        @media (max-width:720px){
+          .cosmetic-mod-download{width:100%;grid-template-columns:42px minmax(0,1fr) auto}
+          .cosmetic-mod-download__icon{width:42px;height:42px}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const modDownload = document.createElement('a');
+    modDownload.className = 'cosmetic-mod-download';
+    modDownload.href = cosmeticModDownloadUrl;
+    modDownload.setAttribute('aria-label', 'Neueste VELTRIX Cosmetic Mod für Minecraft 1.21.11 herunterladen');
+    modDownload.innerHTML = `
+      <span class="cosmetic-mod-download__icon" aria-hidden="true">V</span>
+      <span class="cosmetic-mod-download__copy">
+        <strong>Cosmetic Mod herunterladen</strong>
+        <small>Neueste Version · Fabric · Minecraft 1.21.11 · .jar</small>
+      </span>
+      <span class="cosmetic-mod-download__arrow" aria-hidden="true">↓</span>
+    `;
+    downloadPanel.appendChild(modDownload);
+  }
 
   const toggle = document.querySelector('.nav-toggle');
   if (toggle && nav) {
