@@ -27,4 +27,12 @@ if grep -qi 'id="authentication"' index.html; then fail "technical auth section 
 grep -qi "Microsoft OAuth" privacy.html || fail "privacy auth disclosure missing"
 grep -qi "no analytics\|does not use analytics" privacy.html || fail "analytics statement missing"
 grep -qi "github pages" README.md || fail "publishing docs missing"
+
+# Cosmetic mod download contract
+grep -q "cosmeticModDownloadUrl" script.js || fail "cosmetic mod download URL missing"
+grep -q "cosmetics-latest/VELTRIX-Cosmetics.jar" script.js || fail "stable cosmetic mod asset URL missing"
+grep -q "Cosmetic Mod herunterladen" script.js || fail "cosmetic mod CTA missing"
+grep -q "Minecraft 1.21.11" script.js || fail "cosmetic mod version label missing"
+grep -q "cosmetic-mod-download" script.js || fail "cosmetic mod download styling hook missing"
+
 echo "SiteContract: PASS"
