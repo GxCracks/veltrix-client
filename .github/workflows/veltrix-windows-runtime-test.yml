@@ -53,6 +53,17 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Veltrix patch apply failed.' }
           Write-Host 'Veltrix patch applied successfully.'
 
+      - name: Apply portable TypeScript checker fix
+        working-directory: launcher
+        shell: pwsh
+        run: |
+          $path = 'scripts/check-ts-syntax.cjs'
+          $text = Get-Content $path -Raw
+          $old = "const ts = require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript/lib/typescript.js');"
+          $new = "const ts = require('typescript');"
+          if (-not $text.Contains($old)) { throw 'Expected non-portable TypeScript checker path was not found.' }
+          [IO.File]::WriteAllText((Join-Path $PWD $path), $text.Replace($old, $new), [Text.UTF8Encoding]::new($false))
+
       - name: Verify Windows toolchain
         shell: pwsh
         run: |
