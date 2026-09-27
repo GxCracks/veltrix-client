@@ -1,0 +1,136 @@
+name: Veltrix Windows Runtime Test
+
+on:
+  push:
+    branches:
+      - veltrix-windows-runtime-test-2
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-test:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out test harness
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Clone NoRisk 0.6.28 source baseline
+        shell: pwsh
+        run: |
+          git clone --depth 1 --branch v0.6.28 https://github.com/NoRiskClient/noriskclient-launcher.git launcher
+          if (-not (Test-Path launcher/package.json)) { throw 'NoRisk baseline clone failed.' }
+
+      - name: Reassemble and apply Veltrix runtime patch
+        shell: pwsh
+        run: |
+          $parts = Get-ChildItem .veltrix-ci\part* | Sort-Object Name
+          $b64 = ($parts | ForEach-Object { Get-Content $_.FullName -Raw }) -join ''
+          if ($b64.Length -ne 87528) { throw "Patch payload size mismatch: $($b64.Length)" }
+          $compressedPath = Join-Path $PWD 'veltrix-runtime.patch.gz'
+          $patchPath = Join-Path $PWD 'veltrix-runtime.patch'
+          [IO.File]::WriteAllBytes($compressedPath, [Convert]::FromBase64String($b64))
+          $input = [IO.File]::OpenRead($compressedPath)
+          $output = [IO.File]::Create($patchPath)
+          try {
+            $gzip = [IO.Compression.GzipStream]::new($input,[IO.Compression.CompressionMode]::Decompress)
+            try { $gzip.CopyTo($output) } finally { $gzip.Dispose() }
+          } finally {
+            $output.Dispose()
+            $input.Dispose()
+          }
+          git -C launcher apply --check --whitespace=nowarn $patchPath
+          if ($LASTEXITCODE -ne 0) { throw 'Veltrix patch does not apply cleanly to v0.6.28.' }
+          git -C launcher apply --whitespace=nowarn $patchPath
+          if ($LASTEXITCODE -ne 0) { throw 'Veltrix patch apply failed.' }
+          Write-Host 'Veltrix patch applied successfully.'
+
+      - name: Verify Windows toolchain
+        shell: pwsh
+        run: |
+          node --version
+          npm --version
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Install JavaScript dependencies
+        working-directory: launcher
+        shell: pwsh
+        run: |
+          npm install --no-audit --no-fund --legacy-peer-deps
+
+      - name: Run Veltrix source checks
+        working-directory: launcher
+        shell: pwsh
+        run: |
+          npm run verify:veltrix
+
+      - name: Start Veltrix and verify launcher process survives
+        working-directory: launcher
+        shell: pwsh
+        run: |
+          $stdout = Join-Path $PWD 'veltrix-runtime-stdout.log'
+          $stderr = Join-Path $PWD 'veltrix-runtime-stderr.log'
+          $npm = (Get-Command npm.cmd).Source
+          $dev = Start-Process -FilePath $npm -ArgumentList @('run','tauri:test') -WorkingDirectory $PWD -PassThru -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+          Write-Host "Started npm/Tauri PID $($dev.Id). Waiting for Veltrix process..."
+
+          $deadline = (Get-Date).AddMinutes(25)
+          $launcher = $null
+          while ((Get-Date) -lt $deadline) {
+            $launcher = Get-Process -Name 'veltrix-client-launcher' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($launcher) { break }
+            if ($dev.HasExited) {
+              if (Test-Path $stdout) { Get-Content $stdout -Tail 200 }
+              if (Test-Path $stderr) { Get-Content $stderr -Tail 200 }
+              throw "Tauri dev exited with code $($dev.ExitCode)."
+            }
+            Start-Sleep -Seconds 5
+          }
+
+          if (-not $launcher) {
+            if (Test-Path $stdout) { Get-Content $stdout -Tail 200 }
+            if (Test-Path $stderr) { Get-Content $stderr -Tail 200 }
+            throw 'veltrix-client-launcher.exe did not start within 25 minutes.'
+          }
+
+          Write-Host "Veltrix process started: PID $($launcher.Id). Verifying it remains alive for 20 seconds..."
+          Start-Sleep -Seconds 20
+          $alive = Get-Process -Id $launcher.Id -ErrorAction SilentlyContinue
+          if (-not $alive) {
+            if (Test-Path $stdout) { Get-Content $stdout -Tail 200 }
+            if (Test-Path $stderr) { Get-Content $stderr -Tail 200 }
+            throw 'Veltrix process started but exited during runtime check.'
+          }
+
+          $exe = Join-Path $PWD 'src-tauri\target\debug\veltrix-client-launcher.exe'
+          if (-not (Test-Path $exe)) { throw 'Veltrix executable was not produced at expected debug path.' }
+          $size = (Get-Item $exe).Length
+          if ($size -lt 1000000) { throw "Veltrix executable is unexpectedly small: $size bytes." }
+
+          Write-Host "VELTRIX_RUNTIME_OK PID=$($launcher.Id) EXE=$exe SIZE=$size"
+          'VELTRIX_RUNTIME_OK' | Set-Content -Encoding ascii veltrix-runtime-success.txt
+
+          Stop-Process -Id $launcher.Id -Force -ErrorAction SilentlyContinue
+          if (-not $dev.HasExited) { taskkill /PID $dev.Id /T /F | Out-Null }
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: veltrix-windows-runtime-evidence
+          if-no-files-found: warn
+          path: |
+            launcher/veltrix-runtime-stdout.log
+            launcher/veltrix-runtime-stderr.log
+            launcher/veltrix-runtime-success.txt
+            launcher/src-tauri/target/debug/veltrix-client-launcher.exe
