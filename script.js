@@ -13,7 +13,11 @@
     toggle.setAttribute('aria-expanded', String(open));
   });
 
-  nav.addEventListener('click', event => {
-    if (event.target.closest('a')) closeMenu();
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 820) closeMenu();
   });
 })();
