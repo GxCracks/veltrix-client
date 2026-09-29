@@ -1,52 +1,22 @@
-# VELTRIX Client Website
+# NFL Item-Verleih Website
+
+Öffentliche Website für den **NFL Item-Verleih auf dem OPSUCHT Minecraft Server**.
 
 ## Website
 
-Production:  
-https://gxcracks.github.io/veltrix-client/
+- Startseite: https://gxcracks.github.io/veltrix-client/
+- Datenschutz: https://gxcracks.github.io/veltrix-client/datenschutz/
+- Nutzungsbedingungen: https://gxcracks.github.io/veltrix-client/nutzungsbedingungen/
+- Discord & Support: https://discord.gg/UvkevzwuWR
 
-Hosting:  
-GitHub Pages
+## Windows App
 
-Deployment:  
-GitHub Actions
+Eine native Windows-App ist geplant. Solange keine geprüfte `.exe` veröffentlicht wurde, zeigt die Website ausschließlich **Coming Soon** und bietet keinen Installer oder ZIP-Download an.
 
-GitHub Pages website for the independent VELTRIX Client project.
+## Deployment
 
-## Public URL
+GitHub Pages veröffentlicht ausschließlich den von `scripts/build-site.py` erzeugten Ordner `_site`. Alte historische Dateien im Repository sind nicht Teil des öffentlichen Builds, solange sie nicht in der expliziten NFL-Allowlist stehen.
 
-The production website for this repository is:
+## Sicherheit
 
-`https://gxcracks.github.io/veltrix-client/`
-
-## Update the news feed
-
-Edit `news.json` and add a new item at the top of the `items` array. Commit and push; GitHub Pages redeploys the site and the new entry appears automatically.
-
-## Current download
-
-Windows installer: `https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe`
-
-## Publishing
-
-In GitHub open **Settings → Pages → Source → GitHub Actions** and push to `main`.
-
-## Platform download chooser
-
-The public download dialog offers Windows as the current real build. macOS and Linux are displayed as **Coming soon** until tested packages exist.
-
-## Platforms
-
-- Windows: VELTRIX Client 0.8.2 available
-- macOS: coming soon
-- Linux: coming soon
-
-## Windows installer
-
-The public Windows button points to the native GitHub Release asset:
-
-`https://github.com/GxCracks/veltrix-client/releases/download/v0.8.2/VELTRIX-Setup-0.8.2.exe`
-
-The workflow `.github/workflows/build-windows-installer.yml` builds the EXE on `windows-latest` using Java 21 `jpackage`. VELTRIX 0.8.2 bundles `jdk.crypto.ec` for Microsoft TLS support and is release-gated by installing and launching the packaged Windows application until the UI reports a completed startup. The installed app includes its Java runtime, creates a Desktop shortcut and Start Menu entry, and registers normal Windows uninstall support.
-
-The current installer is unsigned. Windows SmartScreen may warn until VELTRIX is code-signed with a trusted certificate.
+Öffentliche Dateien dürfen keine Bot-Tokens, Client-Secrets, Session-Secrets oder privaten Schlüssel enthalten.
