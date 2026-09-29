@@ -1,4 +1,4 @@
-name: Deploy VELTRIX website to GitHub Pages
+name: Deploy NFL Item-Verleih website to GitHub Pages
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Test and build static site
+      - name: Test and build NFL static site
         run: bash tests/github_pages_domain_contract.sh
 
       - name: Upload site

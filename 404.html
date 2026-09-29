@@ -1,24 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex">
-  <title>VELTRIX — Redirecting</title>
-  <script>
-    (() => {
-      const base = '/veltrix-client';
-      let path = (window.location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
-      if (path.startsWith(base)) path = path.slice(base.length) || '/';
-      const routes = {
-        '/download': base + '/#download',
-        '/features': base + '/#why-veltrix',
-        '/news': base + '/#news',
-        '/privacy': base + '/privacy.html'
-      };
-      window.location.replace(routes[path] || base + '/');
-    })();
-  </script>
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#07120d">
+  <link rel="icon" href="/veltrix-client/assets/nfl-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/veltrix-client/style.css">
+  <title>Seite nicht gefunden · NFL Item-Verleih</title>
 </head>
-<body></body>
+<body>
+  <main class="hero shell" style="min-height:80vh;display:grid;place-content:center">
+    <div class="eyebrow">404 · NFL VERLEIH</div>
+    <h1>Diese Seite gibt es <span>nicht.</span></h1>
+    <p class="hero-copy">Zurück zum NFL Item-Verleih auf dem OPSUCHT Minecraft Server.</p>
+    <div class="hero-actions"><a class="button button-primary" href="/veltrix-client/">Zur Startseite</a></div>
+  </main>
+</body>
 </html>
