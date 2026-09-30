@@ -10,7 +10,7 @@ on:
       source_url:
         description: Temporary source URL for the Windows installer
         required: false
-        default: 'https://nfl.wispbyte.app/download/app'
+        default: 'https://nfl.wispbyte.app/updates/windows/NFL-Verleih-Setup-1.0.5.exe'
   push:
     branches: [main]
     paths:
@@ -27,7 +27,7 @@ jobs:
       RELEASE_TAG: nfl-verleih-latest
       ASSET_NAME: NFL-Verleih-Setup-Latest.exe
       APP_VERSION: ${{ inputs.version || '1.0.5' }}
-      SOURCE_URL: ${{ inputs.source_url || 'https://nfl.wispbyte.app/download/app' }}
+      SOURCE_URL: ${{ inputs.source_url || 'https://nfl.wispbyte.app/updates/windows/NFL-Verleih-Setup-1.0.5.exe' }}
 
     steps:
       - name: Download current NFL installer
