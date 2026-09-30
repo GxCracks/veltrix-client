@@ -1,0 +1,69 @@
+name: Publish NFL App to GitHub Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: NFL app version shown in the release title
+        required: false
+        default: '1.0.5'
+      source_url:
+        description: Temporary source URL for the Windows installer
+        required: false
+        default: 'https://nfl.wispbyte.app/download/app'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-nfl-app-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RELEASE_TAG: nfl-verleih-latest
+      ASSET_NAME: NFL-Verleih-Setup-Latest.exe
+      APP_VERSION: ${{ inputs.version || '1.0.5' }}
+      SOURCE_URL: ${{ inputs.source_url || 'https://nfl.wispbyte.app/download/app' }}
+
+    steps:
+      - name: Download current NFL installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-delay 2 "$SOURCE_URL" --output "$ASSET_NAME"
+          size=$(stat -c%s "$ASSET_NAME")
+          echo "Downloaded $ASSET_NAME ($size bytes)"
+          if [ "$size" -lt 10000000 ]; then
+            echo "Installer is unexpectedly small; refusing to publish."
+            exit 1
+          fi
+
+      - name: Publish or replace stable GitHub release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "NFL Verleih ${APP_VERSION}" \
+              --notes "Offizieller Windows-Installer der NFL Verleih App, Version ${APP_VERSION}."
+            gh release upload "$RELEASE_TAG" "$ASSET_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create "$RELEASE_TAG" "$ASSET_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "NFL Verleih ${APP_VERSION}" \
+              --notes "Offizieller Windows-Installer der NFL Verleih App, Version ${APP_VERSION}."
+          fi
+
+      - name: Show public download URL
+        shell: bash
+        run: |
+          echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
